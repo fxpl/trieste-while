@@ -16,17 +16,15 @@ namespace whilelang
             throw std::runtime_error("Not an arithmetic expression");
 
         auto expr = n->front();
-        if (expr == Ident) {
+        if (expr == Int) return std::stoi(get_lexeme(expr));
+        else if (expr == Ident)
+        {
             auto var = get_lexeme(expr);
 
             if (bindings->find(var) != bindings->end())
                 return (*bindings)[var];
             else
                 throw std::runtime_error("Undefined variable");
-        }
-        else if (expr == Int)
-        {
-            return std::stoi(get_lexeme(expr));
         }
         else if (expr == Add)
         {
@@ -158,10 +156,7 @@ namespace whilelang
                         auto else_ = _(Else);
 
                         auto result = eval_bexpr(cond, bindings);
-                        if (result)
-                            return then;
-                        else
-                            return else_;
+                        return result ? then : else_;
                     },
 
                 In(Eval) * T(Stmt)[While] <<
