@@ -5,6 +5,11 @@ namespace whilelang
     using namespace trieste;
     using Bindings = std::shared_ptr<std::map<std::string, int>>;
 
+    std::string get_lexeme(Node n)
+    {
+        return std::string(n->location().view());
+    }
+
     int eval_aexpr(Node n, Bindings bindings)
     {
         if (n != AExpr)
@@ -12,7 +17,7 @@ namespace whilelang
 
         auto expr = n->front();
         if (expr == Ident) {
-            auto var = std::string(expr->location().view());
+            auto var = get_lexeme(expr);
 
             if (bindings->find(var) != bindings->end())
                 return (*bindings)[var];
@@ -21,7 +26,7 @@ namespace whilelang
         }
         else if (expr == Int)
         {
-            return std::stoi(std::string(expr->location().view()));
+            return std::stoi(get_lexeme(expr));
         }
         else if (expr == Add)
         {
@@ -128,7 +133,7 @@ namespace whilelang
                   (T(Assign) << (T(Ident)[Ident] * T(AExpr)[Rhs])) >>
                     [bindings](Match &_) -> Node
                     {
-                        auto var = std::string(_(Ident)->location().view());
+                        auto var = get_lexeme(_(Ident));
                         auto rhs = _(Rhs);
                         (*bindings)[var] = eval_aexpr(rhs, bindings);
                         return {};
