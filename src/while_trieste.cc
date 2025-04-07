@@ -1,6 +1,5 @@
 #include <trieste/driver.h>
-#include "reader.cc"
-
+#include "lang.hh"
 
 int main(int argc, char** argv)
 {

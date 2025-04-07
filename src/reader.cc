@@ -17,10 +17,8 @@ Reader reader()
 
         // Checking
         check_refs(),
-        eval(),
       },
       whilelang::parser(),
     };
   }
-
 }
