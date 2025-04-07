@@ -169,7 +169,7 @@ namespace whilelang
 
                         auto result = eval_bexpr(cond, bindings);
                         if (result) {
-                            return Seq << body
+                            return Seq << body->clone()
                                        << while_;
                         } else {
                             return {};
