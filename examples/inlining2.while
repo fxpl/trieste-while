@@ -1,0 +1,11 @@
+fun foo(i) {
+	while 0 < i do {
+		i := i - 1;
+	};
+	return 0;
+}
+
+fun main() {
+	output foo(0);
+}
+

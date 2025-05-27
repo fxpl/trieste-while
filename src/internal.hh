@@ -1,4 +1,5 @@
 #pragma once
+#include "call_graph.hh"
 #include "control_flow.hh"
 #include "lang.hh"
 
@@ -31,6 +32,12 @@ namespace whilelang {
     PassDef constant_folding(std::shared_ptr<ControlFlow> cfg);
     PassDef dead_code_elimination(std::shared_ptr<ControlFlow> cfg);
     PassDef dead_code_cleanup();
+
+	// Inlining
+    PassDef build_call_graph(std::shared_ptr<CallGraph> call_graph);
+    PassDef inlining(
+        std::shared_ptr<CallGraph> &call_graph,
+        std::shared_ptr<ControlFlow> &cfg);
 
 	// Compilation
 	PassDef to3addr();

@@ -34,6 +34,7 @@ src/parser.cc
 src/reader.cc
 src/optimization_analysis.cc
 src/compiler.cc
+src/inlining_rewriter.cc
 
 src/utils.cc
 src/control_flow.cc
@@ -57,6 +58,9 @@ src/passes/to3addr.cc
 src/passes/gather_vars.cc
 src/passes/blockify.cc
 src/passes/compile.cc
+
+src/passes/build_call_graph.cc
+src/passes/inlining.cc
 )
 
 add_executable(while_trieste

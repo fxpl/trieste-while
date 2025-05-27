@@ -10,6 +10,7 @@ namespace whilelang {
         bool run_mermaid);
     Rewriter interpret();
     Rewriter optimization_analysis(bool run_zero_analysis);
+    Rewriter inlining_rewriter();
     Rewriter compiler();
 
     // Program
@@ -100,6 +101,8 @@ namespace whilelang {
     inline const auto Atom = TokenDef("while-atom");
     inline const auto BAtom = TokenDef("while-batom");
     inline const auto Instructions = TokenDef("while-instructions");
+
+	inline const auto Inlining = TokenDef("while-inlining");
 
     // 3 address code
     inline const auto Label = TokenDef("while-label", flag::print);

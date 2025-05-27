@@ -23,6 +23,7 @@ int main(int argc, char const *argv[]) {
     bool run_zero_analysis = false;
     bool run_gather_stats = false;
     bool run_mermaid = false;
+    bool run_inlining = false;
     app.add_flag("-r,--run", run, "Run the program (prompting inputs).");
     app.add_flag(
         "-s,--static-analysis",
@@ -43,6 +44,7 @@ int main(int argc, char const *argv[]) {
         run_mermaid,
         "Runs the mermaid pass which parses the final AST into mermaid "
         "format ");
+    app.add_flag("-i", run_inlining, "Enables the inlining optimization.");
 
     std::filesystem::path output_path = "";
     app.add_flag(
@@ -58,8 +60,8 @@ int main(int argc, char const *argv[]) {
     }
 
     auto vars_map = std::make_shared<std::map<std::string, std::string>>();
-    auto reader =
-        whilelang::reader(vars_map, run_gather_stats, run_mermaid).file(input_path);
+    auto reader = whilelang::reader(vars_map, run_gather_stats, run_mermaid)
+                      .file(input_path);
 
     try {
         auto program_empty = [](trieste::Node ast) -> bool {
@@ -67,6 +69,10 @@ int main(int argc, char const *argv[]) {
         };
 
         auto result = reader.read();
+
+        if (run_inlining) {
+            result = result >> whilelang::inlining_rewriter();
+        }
 
         if (run_static_analysis) {
             do {
@@ -92,24 +98,20 @@ int main(int argc, char const *argv[]) {
         whilelang::log_var_map(vars_map);
 
         if (output_path.empty())
-          output_path = input_path.stem().replace_extension(".trieste");
+            output_path = input_path.stem().replace_extension(".trieste");
 
         std::ofstream f(output_path, std::ios::binary | std::ios::out);
-        if (f)
-        {
-          // Write the AST to the output file.
-          f << "vbcc" << std::endl
-            << "VIR" << std::endl
-            << result.ast;
-        }
-        else
-        {
-          trieste::logging::Error() << "Could not open " << output_path << " for writing."
-                                    << std::endl;
-          return 1;
+        if (f) {
+            // Write the AST to the output file.
+            f << "vbcc" << std::endl << "VIR" << std::endl << result.ast;
+        } else {
+            trieste::logging::Error() << "Could not open " << output_path
+                                      << " for writing." << std::endl;
+            return 1;
         }
     } catch (const std::exception &e) {
-        std::cerr << "Program failed with an exception: " << e.what() << std::endl;
+        std::cerr << "Program failed with an exception: " << e.what()
+                  << std::endl;
     }
 
     return 0;
