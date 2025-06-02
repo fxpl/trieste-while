@@ -3,6 +3,7 @@
 
 #include <CLI/CLI.hpp>
 #include <trieste/trieste.h>
+#include <vbcc.h>
 
 int main(int argc, char const *argv[]) {
     CLI::App app;
@@ -66,6 +67,9 @@ int main(int argc, char const *argv[]) {
             } while (result.ok && result.total_changes > 0 &&
                      !program_empty(result.ast));
         }
+
+        trieste::Rewriter compiler = whilelang::compiler();
+        result = result >> compiler;
 
         if (run)
             result = result >> whilelang::interpret();

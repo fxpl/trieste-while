@@ -1,8 +1,8 @@
 # While-Trieste
 
-This project implements a compiler for the While language in Trieste. 
+This project implements a compiler for the While language in Trieste.
 
-The main focus is on dataflow analysis and a framework for this is developed. The implemented analyses are zero analysis, constant propagation and liveness analysis. These are used in optimisation rewrite passes, such as constant folding and dead code elimination. 
+The main focus is on dataflow analysis and a framework for this is developed. The implemented analyses are zero analysis, constant propagation and liveness analysis. These are used in optimisation rewrite passes, such as constant folding and dead code elimination.
 
 ## Compilation and running the executables
 The project is compiled by running:

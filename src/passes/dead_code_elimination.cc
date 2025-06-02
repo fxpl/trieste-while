@@ -3,10 +3,15 @@
 #include "../internal.hh"
 #include "../utils.hh"
 
+#ifndef __cpp_lib_to_chars
+int foo = 0;
+#endif
+
 namespace whilelang {
     using namespace trieste;
 
     std::optional<bool> get_bexpr_value(Node bexpr) {
+        foo = 1;
         auto expr = bexpr / Expr;
 
         if (expr->type().in({True, False})) {

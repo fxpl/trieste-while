@@ -35,6 +35,11 @@ namespace whilelang {
     PassDef dead_code_elimination(std::shared_ptr<ControlFlow> cfg);
     PassDef dead_code_cleanup();
 
+	// Compilation
+	PassDef to3addr();
+	PassDef blockify();
+	PassDef compile();
+
     // clang-format off
 	inline const auto parse_token =
 		Skip |
@@ -48,7 +53,7 @@ namespace whilelang {
 		;
 
 	inline const auto grouping_construct =
-		Group | Semi | Paren | Brace | Comma | 
+		Group | Semi | Paren | Brace | Comma |
 		Add | Sub | Mul |
 		LT | Equals |
 		And | Or |
@@ -82,7 +87,7 @@ namespace whilelang {
 		| (Group	<<= parse_token++)
 		;
 
-	inline const wf::Wellformed functions_wf = 
+	inline const wf::Wellformed functions_wf =
 		(parse_wf - File)
 		| (Top <<= Program)
 		| (Program <<= FunDef++[1])
@@ -134,7 +139,7 @@ namespace whilelang {
 		| (If <<= BExpr * (Then >>= Stmt) * (Else >>= Stmt))
 		| (While <<= BExpr * (Do >>= Stmt))
 		| (Assign <<= Ident * (Rhs >>= AExpr))
-		| (Output <<= AExpr)	
+		| (Output <<= AExpr)
 		| (Block <<= Stmt++[1])
 		| (Return <<= AExpr)
 		;
@@ -156,4 +161,23 @@ namespace whilelang {
 		| (Return <<= Atom)
 		| (Arg <<= Atom)
 		;
+
+	inline const wf::Wellformed three_addr_wf =
+	    (normalization_wf - If - While)
+		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Block | Return)))
+		| (Assign <<= Ident * (Rhs >>= (AExpr | BExpr)))
+		| (Return <<= Ident)
+		| (Cond <<= Ident * (Then >>= Label) * (Else >>= Label))
+		| (Jump <<= Label)
+		;
+
+	inline const wf::Wellformed blockify_wf =
+	    three_addr_wf
+		| (FunDef <<= FunId * ParamList * Blocks)
+		| (Blocks <<= Block++[1])
+		| (Block <<= Label * Body * (Jump >>= Jump | Cond | Return))
+		| (Body <<= Stmt++)
+		| (Stmt <<= (Stmt >>= (Skip | Assign | Output)))
+		;
+	// clang-format on
 }
