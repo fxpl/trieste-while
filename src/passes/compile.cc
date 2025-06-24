@@ -40,7 +40,7 @@ namespace whilelang {
                         Node res_params = vbcc::Params;
 
                         for (auto param : *params) {
-                            auto param_id = param / Param / Ident;
+                            auto param_id = param / Ident;
                             res_params << (vbcc::Param << (vbcc::LocalId ^ param_id)
                                                        << (vbcc::I32));
                         }
@@ -127,6 +127,25 @@ namespace whilelang {
                         return vbcc::LocalId ^ _(Ident);
                     },
 
+                // TODO: Needed?
+                T(Compile) <<
+                    (T(BAtom) << T(Ident)[Ident]) >>
+                    [](Match &_) -> Node {
+                        return vbcc::LocalId ^ _(Ident);
+                    },
+
+                T(Compile) <<
+                    (T(BAtom) << T(True, False)[Expr]) >>
+                    [](Match &_) -> Node {
+                        auto bool_val = _(Expr);
+                        auto tmp = bool_val->fresh();
+                        auto _const = vbcc::Const << (vbcc::LocalId ^ tmp)
+                                                  << vbcc::Bool
+                                                  << (vbcc::Int ^ (bool_val == True ? "1" : "0"));
+                        return Seq << (Lift << vbcc::Body << _const)
+                                   << (vbcc::LocalId ^ tmp);
+                    },
+
                 // Statements
                 T(Compile) <<
                     (T(Stmt) << T(Skip)[Skip]) >>
@@ -151,9 +170,48 @@ namespace whilelang {
                                           << (vbcc::LocalId ^ _(Expr));
                     },
 
-                // TODO: Support function calls
+                T(Compile) << (T(Stmt) <<
+                  (T(Assign) << (T(Ident)[Ident] *
+                                (T(BExpr) << (T(BAtom) << T(Ident)[Expr]))))) >>
+                    [](Match &_) -> Node {
+                        return vbcc::Copy << (vbcc::LocalId ^ _(Ident))
+                                           << (vbcc::LocalId ^ _(Expr));
+                    },
 
-                // TODO: Support boolean connectives
+                T(Compile) << (T(Stmt) <<
+                  (T(Assign) << (T(Ident)[Ident] *
+                                (T(BExpr) << (T(BAtom) << T(True, False)[Expr]))))) >>
+                    [](Match &_) -> Node {
+                        auto bool_val = _(Expr);
+                        return vbcc::Const << (vbcc::LocalId ^ _(Ident))
+                                           << vbcc::Bool
+                                           << (vbcc::Int ^ (bool_val == True ? "1" : "0"));
+                    },
+
+
+                T(Compile) << (T(Stmt) <<
+                  (T(Assign) << (T(Ident)[Ident] *
+                                (T(AExpr) << T(FunCall)[FunCall])))) >>
+                    [](Match &_) -> Node {
+                        auto fun_call = _(FunCall);
+                        auto fun_id = std::string((fun_call / FunId / Ident)->location().view());
+                        auto args = fun_call / ArgList;
+
+                        Node tmp = vbcc::LocalId ^ "$_";
+                        Node name = vbcc::FunctionId ^ ("@" + fun_id);
+                        Node args_node = vbcc::Args;
+
+                        for (auto arg : *args) {
+                            args_node << (vbcc::Arg << vbcc::ArgCopy << (Compile << (arg / Atom)));
+                        }
+
+                        auto dst = vbcc::LocalId ^ _(Ident);
+
+                        return vbcc::Call << dst
+                                          << name
+                                          << args_node;
+                    },
+
                 T(Compile) << (T(Stmt) <<
                   (T(Assign) << (T(Ident)[Ident] * T(AExpr, BExpr)[Expr]))) >>
                     [](Match &_) -> Node {
@@ -165,8 +223,8 @@ namespace whilelang {
                                   expr == Mul ? vbcc::Mul :
                                   expr == LT ? vbcc::Lt :
                                   expr == Equals ? vbcc::Eq :
-                                  Error << (ErrorAst << _(Expr))
-                                        << (ErrorMsg ^ "Invalid operator");
+                                  expr == And ? vbcc::And :
+                                  expr == Or ? vbcc::Or : throw std::runtime_error(std::string("Invalid operator: ") + expr->type().str());
 
                         auto dst = vbcc::LocalId ^ ident;
                         auto lhs = expr / Lhs;
@@ -190,7 +248,7 @@ namespace whilelang {
                 T(Compile) << Any[Expr] >>
                     [](Match &_) -> Node {
                         return Error << (ErrorAst << _(Expr))
-                                     << (ErrorMsg ^ "Cannot compile term");
+                                     << (ErrorMsg ^ "Cannot compile term:" + _(Expr)->str());
                     },
             },
         };

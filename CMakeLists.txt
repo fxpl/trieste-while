@@ -12,17 +12,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(trieste)
 
 FetchContent_Declare(
-  verona-bc
+  vbc
   GIT_REPOSITORY https://github.com/EliasC/verona-bc
   GIT_TAG fix/mac
   )
 
-FetchContent_MakeAvailable(verona-bc)
+FetchContent_MakeAvailable(vbc)
 
 add_library(ffi::ffi UNKNOWN IMPORTED)
 set_target_properties(ffi::ffi PROPERTIES
-  IMPORTED_LOCATION "/opt/homebrew/Cellar/libffi/3.4.7/lib"
-  INTERFACE_INCLUDE_DIRECTORIES "/opt/homebrew/Cellar/libffi/3.4.7/include")
+  IMPORTED_LOCATION "/opt/homebrew/Cellar/libffi/3.4.8/lib"
+  INTERFACE_INCLUDE_DIRECTORIES "/opt/homebrew/Cellar/libffi/3.4.8/include")
 
 add_executable(while
 src/while.cc
@@ -82,13 +82,13 @@ src/passes/compile.cc
 target_link_libraries(while
   CLI11::CLI11
   trieste::trieste
-  verona-bc::include
+  vbc::include
 )
 
 target_link_libraries(while_trieste
   CLI11::CLI11
   trieste::trieste
-  verona-bc::include
+  vbc::include
 )
 
 set(CMAKE_CXX_STANDARD 20)

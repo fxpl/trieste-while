@@ -32,11 +32,6 @@ namespace whilelang {
 
                 // Used for perfomance analysis
                 //gather_stats().cond([=](Node) { return run_stats; }),
-
-                // Compilation
-                to3addr(),
-                blockify(),
-                compile(),
             },
             whilelang::parser(),
         };

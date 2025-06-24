@@ -97,6 +97,7 @@ namespace whilelang {
     // Normalization
     inline const auto Normalize = TokenDef("while-normalize");
     inline const auto Atom = TokenDef("while-atom");
+    inline const auto BAtom = TokenDef("while-batom");
     inline const auto Instructions = TokenDef("while-instructions");
 
     // 3 address code

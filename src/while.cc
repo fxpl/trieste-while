@@ -43,6 +43,14 @@ int main(int argc, char const *argv[]) {
         run_mermaid,
         "Runs the mermaid pass which parses the final AST into mermaid "
         "format ");
+
+    std::filesystem::path output_path = "";
+    app.add_flag(
+        "-o,--output",
+        output_path,
+        "Output file for the compiled program. If not specified, "
+        "the output will be the input file name with .trieste extension.");
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError &e) {
@@ -71,6 +79,29 @@ int main(int argc, char const *argv[]) {
         trieste::Rewriter compiler = whilelang::compiler();
         result = result >> compiler;
 
+        trieste::logging::Debug() << "AST after compilation: " << std::endl
+                                  << result.ast;
+
+        if (output_path.empty())
+          output_path = input_path.stem().replace_extension(".trieste");
+
+        std::ofstream f(output_path, std::ios::binary | std::ios::out);
+        if (f)
+        {
+          // Write the AST to the output file.
+          f << "vbcc" << std::endl
+            << "VIR" << std::endl
+            << result.ast;
+        }
+        else
+        {
+          trieste::logging::Error() << "Could not open " << output_path << " for writing."
+                                    << std::endl;
+          return 1;
+        }
+
+
+
         if (run)
             result = result >> whilelang::interpret();
 
@@ -86,7 +117,7 @@ int main(int argc, char const *argv[]) {
         whilelang::log_var_map(vars_map);
 
     } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
+        std::cerr << "Program failed with an exception: " << e.what() << std::endl;
     }
 
     return 0;
