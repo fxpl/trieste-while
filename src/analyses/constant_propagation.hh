@@ -139,9 +139,9 @@ namespace whilelang {
                 it2++;
             }
 
-            // if (it1 != x.end() || it2 != y.end()) {
-            //     throw std::runtime_error("States are not comparable");
-            // }
+            if (it1 != x.end() || it2 != y.end()) {
+                throw std::runtime_error("States are not comparable");
+            }
 
             return changed;
         }
