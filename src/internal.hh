@@ -14,9 +14,6 @@ namespace whilelang {
     PassDef unique_variables(
         std::shared_ptr<std::map<std::string, std::string>> vars_map);
 
-    // Evaluation
-    PassDef eval();
-
     // For performance testing
     PassDef gather_stats();
 
@@ -57,7 +54,7 @@ namespace whilelang {
 		Add | Sub | Mul |
 		LT | Equals |
 		And | Or |
-		Assign 
+		Assign
 		;
 
 	inline const wf::Wellformed parse_wf =

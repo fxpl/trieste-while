@@ -82,6 +82,15 @@ int main(int argc, char const *argv[]) {
         trieste::logging::Debug() << "AST after compilation: " << std::endl
                                   << result.ast;
 
+        // If any result above was not ok it will carry through to here
+        if (!result.ok) {
+            trieste::logging::Error err;
+            result.print_errors(err);
+            trieste::logging::Debug() << result.ast;
+            return 1;
+        }
+        whilelang::log_var_map(vars_map);
+
         if (output_path.empty())
           output_path = input_path.stem().replace_extension(".trieste");
 
@@ -99,23 +108,6 @@ int main(int argc, char const *argv[]) {
                                     << std::endl;
           return 1;
         }
-
-
-
-        if (run)
-            result = result >> whilelang::interpret();
-
-        // If any result above was not ok it will carry through to here
-        if (!result.ok) {
-            trieste::logging::Error err;
-            result.print_errors(err);
-            trieste::logging::Debug() << result.ast;
-            return 1;
-        }
-        trieste::logging::Debug() << "AST after all passes: " << std::endl
-                                  << result.ast;
-        whilelang::log_var_map(vars_map);
-
     } catch (const std::exception &e) {
         std::cerr << "Program failed with an exception: " << e.what() << std::endl;
     }

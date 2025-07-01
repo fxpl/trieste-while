@@ -28,7 +28,6 @@ add_executable(while
 src/while.cc
 src/parser.cc
 src/reader.cc
-src/interpreter.cc
 src/optimization_analysis.cc
 src/compiler.cc
 
@@ -49,8 +48,6 @@ src/passes/gather_control_flow.cc
 src/passes/zero_analysis.cc
 src/passes/constant_folding.cc
 src/passes/dead_code_elimination.cc
-
-src/passes/eval.cc
 
 src/passes/to3addr.cc
 src/passes/blockify.cc
