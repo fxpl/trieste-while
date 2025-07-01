@@ -5,7 +5,7 @@ fun main() {
 	n := 5;
 	fact := 1;
 	i := 1;
-	while (false) do {
+	while (i < n + 1) do {
         fact := fact * i;
 		i := i + 1;
 	};
