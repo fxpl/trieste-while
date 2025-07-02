@@ -7,4 +7,5 @@ fun main() {
 		x := 2
 	};
 	output x;
+	return 0;
 }

@@ -39,7 +39,7 @@ namespace whilelang {
         }
 
         if (curr == While) {
-            children.insert(curr / BExpr);
+            children.insert(curr / BAtom);
         } else if (curr == If) {
             auto then_last_nodes = get_last_basic_children(curr / Then);
             auto else_last_nodes = get_last_basic_children(curr / Else);

@@ -29,4 +29,5 @@ fun main() {
 	output el1;
 	output el2;
 	output b;
+	return 0;
 }
