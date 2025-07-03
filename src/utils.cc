@@ -58,18 +58,6 @@ namespace whilelang {
         return std::stoi(text);
     }
 
-    int calc_arithmetic_op(Token op, int x, int y) {
-        if (op == Add) {
-            return x + y;
-        } else if (op == Sub) {
-            return x - y;
-        } else if (op == Mul) {
-            return x * y;
-        } else {
-            throw std::runtime_error("Not a valid operator");
-        }
-    }
-
     std::string get_identifier(const Node &node) {
         return std::string(node->location().view());
     }

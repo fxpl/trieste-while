@@ -169,6 +169,18 @@ namespace whilelang {
                 if (expr == Atom || expr == BAtom) {
                     incoming_state[var] =
                         get_lattice_value_from_atom(expr, incoming_state);
+                } else if (expr == Not) {
+                    Node atom = expr / BAtom;
+                    auto atom_value =
+                        get_lattice_value_from_atom(atom, incoming_state);
+
+                    if (atom_value.type == CPAbstractType::Constant) {
+                        auto op_result = *atom_value.value == 1? 0: 1;
+                        incoming_state[var] =
+                            CPLatticeValue::constant(op_result);
+                    } else {
+                        incoming_state[var] = CPLatticeValue::top();
+                    }
                 } else if (expr->type().in({Add, Sub, Mul, And, Or, LT, Equals})) {
                     Node lhs = expr / Lhs;
                     Node rhs = expr / Rhs;
