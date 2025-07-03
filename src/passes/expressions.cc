@@ -4,7 +4,7 @@ namespace whilelang {
     using namespace trieste;
 
     PassDef expressions() {
-        auto UNHANDLED = --In(BExpr, AExpr, Param, FunId, Var);
+        auto UNHANDLED = --In(BExpr, AExpr, Param, Var);
         return {
             "expressions",
             expressions_wf,
@@ -13,7 +13,7 @@ namespace whilelang {
 
                 T(Ident)[Ident] * T(Paren)[Paren] >> [](Match &_) -> Node {
                     return AExpr
-                        << (FunCall << (FunId << _(Ident))
+                        << (FunCall << (FunId ^ _(Ident))
                                     << (ArgList << *_(Paren)));
                 },
 

@@ -32,7 +32,7 @@ namespace whilelang {
                   T(FunDef)[FunDef] >>
                     [](Match &_) -> Node {
                         auto fun = _(FunDef);
-                        auto fun_id = std::string((fun / FunId / Ident)->location().view());
+                        auto fun_id = std::string((fun / FunId)->location().view());
                         auto params = fun / ParamList;
                         auto blocks = fun / Blocks;
 
@@ -194,7 +194,7 @@ namespace whilelang {
                                 (T(AExpr) << T(FunCall)[FunCall])))) >>
                     [](Match &_) -> Node {
                         auto fun_call = _(FunCall);
-                        auto fun_id = std::string((fun_call / FunId / Ident)->location().view());
+                        auto fun_id = std::string((fun_call / FunId)->location().view());
                         auto args = fun_call / ArgList;
 
                         Node tmp = vbcc::LocalId ^ "$_";

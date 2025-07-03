@@ -9,14 +9,8 @@ namespace whilelang {
             functions_wf,
             dir::topdown,
             {
-                In(Top) * (T(File)[File] << (T(FunDef) * T(FunDef)++)) >>
+                In(Top) * (T(File)[File] << (T(FunDef))) >>
                     [](Match &_) -> Node { return Program << *_(File); },
-
-                T(File) << T(Semi)[Semi] >>
-                    [](Match &_) -> Node { return File << *_(Semi); },
-
-                T(Semi)[Semi] << (T(FunDef) * T(FunDef)++) >>
-                    [](Match &_) -> Node { return Seq << *_(Semi); },
 
                 T(Var) << T(Group)[Group] >>
                     [](Match &_) -> Node { return Var << *_(Group); },
@@ -25,7 +19,7 @@ namespace whilelang {
                         << (T(FunDef) * T(Ident)[Ident] * T(Paren)[Paren] *
                             T(Brace)[Brace]) >>
                     [](Match &_) -> Node {
-                    return FunDef << (FunId << _(Ident))
+                    return FunDef << (FunId ^ _(Ident))
                                   << (ParamList << *_(Paren))
                                   << (Body << *_(Brace));
                 },

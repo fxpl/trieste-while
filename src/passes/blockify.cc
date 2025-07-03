@@ -23,10 +23,10 @@ namespace whilelang {
                     [](Match &_) -> Node {
                         auto fun_body = _(Body);
                         if (fun_body->size() == 0) {
-                            return Error << (ErrorAst << (_(FunId) / Ident))
+                            return Error << (ErrorAst << _(FunId))
                                          << (ErrorMsg ^ "Empty function body");
                         } else if (fun_body->at(0) / Stmt != Label) {
-                            return Error << (ErrorAst << (_(FunId) / Ident))
+                            return Error << (ErrorAst << _(FunId))
                                          << (ErrorMsg ^ "Function body must start with a label");
                         }
 
@@ -78,7 +78,7 @@ namespace whilelang {
                         }
 
                         if (block->size() > 0)
-                            return Error << (ErrorAst << (_(FunId) / Ident))
+                            return Error << (ErrorAst << _(FunId))
                                          << (ErrorMsg ^ "Control reaches end of function");
 
                         return FunDef << _(FunId) << _(ParamList) << blocks;

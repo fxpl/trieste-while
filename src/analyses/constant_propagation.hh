@@ -228,7 +228,7 @@ namespace whilelang {
                 }
             } else if (
                 inst == FunDef &&
-                get_identifier((inst / FunId) / Ident) != "main") {
+                get_identifier(inst / FunId) != "main") {
                 auto params = inst / ParamList;
 
                 auto param_vars = Vars();

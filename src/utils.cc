@@ -68,7 +68,7 @@ namespace whilelang {
             curr = curr->parent();
         }
 
-        auto fun_id = (curr / FunId) / Ident;
+        auto fun_id = curr / FunId;
         return get_identifier(fun_id) + "-" + get_identifier(ident);
     };
 

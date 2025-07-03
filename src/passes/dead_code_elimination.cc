@@ -30,7 +30,7 @@ namespace whilelang {
                 {
                     // Remove unused functions
                     T(FunDef)[FunDef] >> [=](Match &_) -> Node {
-                        auto fun_id = (_(FunDef) / FunId) / Ident;
+                        auto fun_id = _(FunDef) / FunId;
 
                         if (get_identifier(fun_id) != "main" &&
                             cfg->get_fun_calls_from_def(_(FunDef)).empty()) {

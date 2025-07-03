@@ -30,7 +30,8 @@ namespace whilelang {
                     return Program << res;
                 },
                 T(Normalize) << T(FunDef)[FunDef] >> [](Match &_) -> Node {
-                    return FunDef << (_(FunDef) / FunId)
+                    return (FunDef ^ _(FunDef))
+                                  << (_(FunDef) / FunId)
                                   << (_(FunDef) / ParamList)
                                   << (Normalize << (_(FunDef) / Body));
                 },
