@@ -1,5 +1,5 @@
 fun main() {
-    if (not true) then {
+    if (not (1 < 2)) then {
         output 1;
     } else {
         output 2;

@@ -14,9 +14,11 @@ namespace whilelang {
             auto curr = n;
 
             while (!curr->type().in(
-                {BAtom, Assign, FunCall, FunDef, Output, Return})) {
+                {If, While, Assign, FunCall, FunDef, Output, Return})) {
                 curr = curr->parent();
             }
+            if (curr->type().in({If, While}))
+                return curr / BAtom;
             return curr;
         };
 
