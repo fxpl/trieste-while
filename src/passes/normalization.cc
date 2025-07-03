@@ -229,11 +229,17 @@ namespace whilelang {
                                << (BAtom << id->clone());
                 },
 
-                // TODO: Probably broken
                 T(Normalize) << (T(BExpr)[BExpr] << T(Not)[Op]) >>
                     [](Match &_) -> Node {
                     auto expr = _(Op) / Expr;
-                    return BExpr << (_(Op)->type() << (Normalize << expr));
+                    auto id = Ident ^ _(Op)->fresh();
+
+                    auto assign = Assign
+                        << id
+                        << (BExpr << (_(Op)->type() << (Normalize << expr)));
+
+                    return Seq << (Lift << Block << (Stmt << assign))
+                               << (BAtom << id->clone());
                 },
 
                 T(Normalize) << (T(BExpr) << T(Ident, True, False)[Expr]) >>

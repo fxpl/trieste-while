@@ -175,7 +175,7 @@ namespace whilelang {
                                 (T(BExpr) << (T(BAtom) << T(Ident)[Expr]))))) >>
                     [](Match &_) -> Node {
                         return vbcc::Copy << (vbcc::LocalId ^ _(Ident))
-                                           << (vbcc::LocalId ^ _(Expr));
+                                          << (vbcc::LocalId ^ _(Expr));
                     },
 
                 T(Compile) << (T(Stmt) <<
@@ -210,6 +210,16 @@ namespace whilelang {
                         return vbcc::Call << dst
                                           << name
                                           << args_node;
+                    },
+
+                T(Compile) << (T(Stmt) <<
+                  (T(Assign) << (T(Ident)[Ident] * (T(BExpr) << T(Not)[Expr])))) >>
+                    [](Match &_) -> Node {
+                        auto ident = _(Ident);
+                        auto batom = _(Expr) / BAtom;
+                        auto dst = vbcc::LocalId ^ ident;
+                        return vbcc::Not << dst
+                                         << (Compile << batom);
                     },
 
                 T(Compile) << (T(Stmt) <<

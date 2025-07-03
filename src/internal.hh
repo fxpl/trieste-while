@@ -161,6 +161,7 @@ namespace whilelang {
 		| (Or <<= (Lhs >>= BAtom) * (Rhs >>= BAtom))
 		| (LT <<= (Lhs >>= Atom) * (Rhs >>= Atom))
 		| (Equals <<= (Lhs >>= Atom) * (Rhs >>= Atom))
+		| (Not <<= (BAtom >>= BAtom))
 		| (Output <<= Atom)
 		| (Return <<= Atom)
 		| (Arg <<= Atom)
