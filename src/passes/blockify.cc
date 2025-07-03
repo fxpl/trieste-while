@@ -23,10 +23,10 @@ namespace whilelang {
                     [](Match &_) -> Node {
                         auto fun_body = _(Body);
                         if (fun_body->size() == 0) {
-                            return Error << (ErrorAst << _(FunId))
+                            return Error << (ErrorAst << (_(FunId) / Ident))
                                          << (ErrorMsg ^ "Empty function body");
                         } else if (fun_body->at(0) / Stmt != Label) {
-                            return Error << (ErrorAst << _(FunId))
+                            return Error << (ErrorAst << (_(FunId) / Ident))
                                          << (ErrorMsg ^ "Function body must start with a label");
                         }
 
@@ -63,7 +63,7 @@ namespace whilelang {
                                 }
                             } else if (stmt->type().in({Cond, Jump, Return})) {
                                 if (stmt == Jump) {
-                                                                        targeted_labels.insert(get_label(stmt / Label));
+                                    targeted_labels.insert(get_label(stmt / Label));
                                 } else if (stmt == Cond) {
                                     targeted_labels.insert(get_label(stmt / Then));
                                     targeted_labels.insert(get_label(stmt / Else));
@@ -78,8 +78,8 @@ namespace whilelang {
                         }
 
                         if (block->size() > 0)
-                            return Error << (ErrorAst << fun_body)
-                                         << (ErrorMsg ^ "Block without a terminator: " + block->str());
+                            return Error << (ErrorAst << (_(FunId) / Ident))
+                                         << (ErrorMsg ^ "Control reaches end of function");
 
                         return FunDef << _(FunId) << _(ParamList) << blocks;
                     },
