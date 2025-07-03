@@ -141,7 +141,7 @@ namespace whilelang {
                         auto tmp = bool_val->fresh();
                         auto _const = vbcc::Const << (vbcc::LocalId ^ tmp)
                                                   << vbcc::Bool
-                                                  << (vbcc::Int ^ (bool_val == True ? "1" : "0"));
+                                                  << (bool_val == True ? vbcc::True : vbcc::False);
                         return Seq << (Lift << vbcc::Body << _const)
                                    << (vbcc::LocalId ^ tmp);
                     },
