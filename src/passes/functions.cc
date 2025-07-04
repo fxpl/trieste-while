@@ -12,9 +12,6 @@ namespace whilelang {
                 In(Top) * (T(File)[File] << (T(FunDef))) >>
                     [](Match &_) -> Node { return Program << *_(File); },
 
-                T(Var) << T(Group)[Group] >>
-                    [](Match &_) -> Node { return Var << *_(Group); },
-
                 T(Group)
                         << (T(FunDef) * T(Ident)[Ident] * T(Paren)[Paren] *
                             T(Brace)[Brace]) >>
@@ -36,15 +33,7 @@ namespace whilelang {
                 In(Param) * T(Group)[Group] >>
                     [](Match &_) -> Node { return Seq << *_(Group); },
 
-                // Errors
-                T(Var)[Var] << --(Start * T(Ident) * End) >>
-                    [](Match &_) -> Node {
-                    return Error << (ErrorAst << _(Var))
-                                 << (ErrorMsg ^
-                                     "Invalid variable declaration, expected "
-                                     "an identifier");
-                },
-
+                // Error rules
                 T(FunDef)[FunDef] << --(T(FunId) * T(ParamList) * T(Body)) >>
                     [](Match &_) -> Node {
                     return Error << (ErrorAst << _(FunDef))
@@ -67,10 +56,10 @@ namespace whilelang {
                             "Invalid program, missing function declaration");
                 },
 
-                T(Program)[Program] << !T(FunDef) >> [](Match &_) -> Node {
+                In(Program) * (!T(FunDef))[Expr] >> [](Match &_) -> Node {
                     return Error
-                        << (ErrorAst << _(Program))
-                        << (ErrorMsg ^ "Invalid program, missing a function");
+                        << (ErrorAst << _(Expr))
+                        << (ErrorMsg ^ "Unexpected term");
                 },
             }};
     }

@@ -92,7 +92,6 @@ namespace whilelang {
 		| (ParamList <<= Param++)
 		| (Param <<= Ident)[Ident]
 		| (Body <<= ~grouping_construct)
-		| (Var <<= Ident)[Ident]
 		;
 
 	inline const auto expressions_parse_token = parse_token - Not - True - False - Int - Ident - Input;
@@ -115,6 +114,7 @@ namespace whilelang {
 		| (Or     <<= BExpr++[2])
 		| (Not    <<= (Expr >>= BExpr))
 		| (Semi   <<= (expressions_grouping_construct - Semi)++[1])
+		| (Var    <<= ~expressions_grouping_construct)
 		| (If     <<= ~expressions_grouping_construct)
 		| (Then   <<= ~expressions_grouping_construct)
 		| (Else   <<= ~expressions_grouping_construct)
@@ -131,7 +131,8 @@ namespace whilelang {
     inline const wf::Wellformed statements_wf =
 		(expressions_wf - Group - Paren - Do - Then - Else - Body)
 		| (FunDef <<= FunId * ParamList * (Body >>= Stmt))
-		| (Stmt <<= (Stmt >>= (Skip | Assign | While | If | Output | Block | Return | Var)))
+		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | While | If | Output | Block | Return)))
+		| (Var <<= Ident)[Ident]
 		| (If <<= BExpr * (Then >>= Stmt) * (Else >>= Stmt))
 		| (While <<= BExpr * (Do >>= Stmt))
 		| (Assign <<= Ident * (Rhs >>= AExpr))

@@ -4,7 +4,7 @@ namespace whilelang {
     using namespace trieste;
 
     PassDef expressions() {
-        auto UNHANDLED = --In(BExpr, AExpr, Param, Var);
+        auto UNHANDLED = --In(BExpr, AExpr, Param);
         return {
             "expressions",
             expressions_wf,
