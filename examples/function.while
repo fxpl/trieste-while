@@ -4,7 +4,7 @@ fun mul(x, y) {
 
 fun square(x) {
 	return mul(x, x);
-};
+}
 
 fun main() {
 	var x;
