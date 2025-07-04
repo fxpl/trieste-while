@@ -45,17 +45,14 @@ namespace whilelang {
                             }
 
                             if (stmt == Label) {
-                                if (!targeted_labels.contains(get_label(stmt))) {
-                                    // Label is not targeted, skip it
-                                    continue;
-                                }
                                 if (block->size() == 0) {
                                     // First label in the block
+                                    if (targeted_labels.count(get_label(stmt)) == 0)
+                                        continue; // Label is not targeted, skip it
                                     block << stmt;
                                 } else {
                                     // Fallthrough
                                     targeted_labels.insert(get_label(stmt));
-                                    std::cout << get_label(stmt) << " targeted" << std::endl;
                                     block << body << (Jump << stmt->clone());
                                     blocks << block;
                                     block = Block << stmt;
