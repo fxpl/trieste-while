@@ -21,6 +21,14 @@ namespace whilelang {
                                                  << vbcc::None; // Return type
                     res << (vbcc::Lib << (vbcc::String ^ "")
                                       << (vbcc::Symbols << printval));
+                    Node input = vbcc::Symbol << (vbcc::SymbolId ^ "@input")
+                                                 << (vbcc::String ^ "input")
+                                                 << (vbcc::String ^ "")
+                                                 << vbcc::None // Varargs
+                                                 << (vbcc::FFIParams)
+                                                 << vbcc::I32; // Return type
+                    res << (vbcc::Lib << (vbcc::String ^ "libwhile_lib.dylib")
+                                      << (vbcc::Symbols << input));
                     for (auto child : *_(Program)) {
                         res << (Compile << child);
                     }
@@ -122,14 +130,7 @@ namespace whilelang {
                     },
 
                 T(Compile) <<
-                    (T(Atom) << T(Ident)[Ident]) >>
-                    [](Match &_) -> Node {
-                        return vbcc::LocalId ^ _(Ident);
-                    },
-
-                // TODO: Needed?
-                T(Compile) <<
-                    (T(BAtom) << T(Ident)[Ident]) >>
+                    (T(Atom, BAtom) << T(Ident)[Ident]) >>
                     [](Match &_) -> Node {
                         return vbcc::LocalId ^ _(Ident);
                     },
@@ -143,6 +144,19 @@ namespace whilelang {
                                                   << vbcc::Bool
                                                   << (bool_val == True ? vbcc::True : vbcc::False);
                         return Seq << (Lift << vbcc::Body << _const)
+                                   << (vbcc::LocalId ^ tmp);
+                    },
+
+                T(Compile) <<
+                    (T(Atom) << T(Input)) >>
+                    [](Match &_) -> Node {
+                        auto tmp = _.fresh();
+                        auto name = vbcc::SymbolId ^ "@input";
+                        Node args = vbcc::Args;
+                        return Seq << (Lift << vbcc::Body
+                                            << (vbcc::FFI << (vbcc::LocalId ^ tmp)
+                                                          << name
+                                                          << args))
                                    << (vbcc::LocalId ^ tmp);
                     },
 
@@ -168,6 +182,15 @@ namespace whilelang {
                     [](Match &_) -> Node {
                         return vbcc::Copy << (vbcc::LocalId ^ _(Ident))
                                           << (vbcc::LocalId ^ _(Expr));
+                    },
+
+                T(Compile) << (T(Stmt) <<
+                  (T(Assign) << (T(Ident)[Ident] *
+                                (T(AExpr) << (T(Atom) << T(Input)))))) >>
+                    [](Match &_) -> Node {
+                        return vbcc::FFI << (vbcc::LocalId ^ _(Ident))
+                                         << (vbcc::SymbolId ^ "@input")
+                                         << vbcc::Args;
                     },
 
                 T(Compile) << (T(Stmt) <<

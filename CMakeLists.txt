@@ -24,6 +24,10 @@ set_target_properties(ffi::ffi PROPERTIES
   IMPORTED_LOCATION "/opt/homebrew/Cellar/libffi/3.4.8/lib"
   INTERFACE_INCLUDE_DIRECTORIES "/opt/homebrew/Cellar/libffi/3.4.8/include")
 
+add_library(while_lib SHARED
+src/lib.cc
+)
+
 add_executable(while
 src/while.cc
 src/parser.cc
