@@ -13,8 +13,8 @@ FetchContent_MakeAvailable(trieste)
 
 FetchContent_Declare(
   vbc
-  GIT_REPOSITORY https://github.com/EliasC/verona-bc
-  GIT_TAG fix/mac
+  GIT_REPOSITORY https://github.com/sylvanc/verona-bc
+  GIT_TAG 19944ae71191f2f242b52cf0eb5a9f745536e313
   )
 
 FetchContent_MakeAvailable(vbc)
