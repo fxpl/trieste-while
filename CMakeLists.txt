@@ -54,6 +54,7 @@ src/passes/constant_folding.cc
 src/passes/dead_code_elimination.cc
 
 src/passes/to3addr.cc
+src/passes/gather_vars.cc
 src/passes/blockify.cc
 src/passes/compile.cc
 )
@@ -76,6 +77,7 @@ src/passes/gather_stats.cc
 src/passes/normalization.cc
 
 src/passes/to3addr.cc
+src/passes/gather_vars.cc
 src/passes/blockify.cc
 src/passes/compile.cc
 )

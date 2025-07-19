@@ -8,6 +8,7 @@ namespace whilelang {
             "compiler",
             {
                 to3addr(),
+                gather_vars(),
                 blockify(),
                 compile(),
             },

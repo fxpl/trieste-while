@@ -52,8 +52,8 @@ namespace whilelang {
                     return res;
                 },
 
-                T(Stmt) << (T(Normalize) << T(Var)) >>
-                    [](Match &) -> Node { return Stmt << Skip; },
+                T(Normalize) << T(Var)[Var] >>
+                    [](Match &_) -> Node { return _(Var); },
 
                 T(Normalize)
                         << (T(Assign)

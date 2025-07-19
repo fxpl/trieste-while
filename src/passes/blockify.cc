@@ -19,6 +19,7 @@ namespace whilelang {
                 T(FunDef) <<
                     (T(FunId)[FunId] *
                      T(ParamList)[ParamList] *
+                     T(Idents)[Idents] *
                      (T(Stmt) << T(Block)[Body])) >>
                     [](Match &_) -> Node {
                         auto fun_body = _(Body);
@@ -78,7 +79,7 @@ namespace whilelang {
                             return Error << (ErrorAst << _(FunId))
                                          << (ErrorMsg ^ "Control reaches end of function");
 
-                        return FunDef << _(FunId) << _(ParamList) << blocks;
+                        return FunDef << _(FunId) << _(ParamList) << _(Idents) << blocks;
                     },
             }
         };

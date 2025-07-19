@@ -27,7 +27,7 @@ namespace whilelang {
                     return NoChange;
                 },
 
-                T(Assign, Skip, Output, Return)[Inst] >> [=](Match &_) -> Node {
+                T(Var, Assign, Skip, Output, Return)[Inst] >> [=](Match &_) -> Node {
                     Node inst = _(Inst);
                     instructions->insert(inst);
 

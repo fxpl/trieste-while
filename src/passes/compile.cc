@@ -43,6 +43,7 @@ namespace whilelang {
                         auto fun_id = std::string((fun / FunId)->location().view());
                         auto params = fun / ParamList;
                         auto blocks = fun / Blocks;
+                        auto idents = fun / Idents;
 
                         Node res_id = vbcc::FunctionId ^ ("@" + fun_id);
                         Node res_params = vbcc::Params;
@@ -54,8 +55,14 @@ namespace whilelang {
                         }
 
                         Node res_type = vbcc::I32;
+
+                        Node res_vars = vbcc::Vars;
+                        for (auto ident : *idents) {
+                            res_vars << (vbcc::LocalId ^ ident);
+                        }
+
                         Node res_body = Compile << blocks;
-                        return vbcc::Func << res_id << res_params << res_type
+                        return vbcc::Func << res_id << res_params << res_type << res_vars
                                           << res_body;
                     },
 

@@ -18,7 +18,7 @@ namespace whilelang {
     // Function
     inline const auto FunDef =
         TokenDef("while-function_declaration", flag::symtab | flag::defbeforeuse);
-    inline const auto FunId = TokenDef("while-function_identifier");
+    inline const auto FunId = TokenDef("while-function_identifier", flag::print);
     inline const auto ParamList = TokenDef("while-param_list");
     inline const auto Param = TokenDef("while-param", flag::lookup | flag::shadowing);
     inline const auto Body = TokenDef("while-body");
@@ -90,6 +90,7 @@ namespace whilelang {
     inline const auto Prev = TokenDef("while-prev");
     inline const auto Post = TokenDef("while-post");
     inline const auto Inst = TokenDef("while-inst");
+    inline const auto Idents = TokenDef("while-idents");
 
     // Evaluation
     inline const auto Eval = TokenDef("while-eval");

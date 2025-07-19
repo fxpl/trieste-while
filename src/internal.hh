@@ -34,6 +34,7 @@ namespace whilelang {
 
 	// Compilation
 	PassDef to3addr();
+	PassDef gather_vars();
 	PassDef blockify();
 	PassDef compile();
 
@@ -141,12 +142,9 @@ namespace whilelang {
 		| (Return <<= AExpr)
 		;
 
-	inline const wf::Wellformed eval_wf =
-		(statements_wf - Top);
-
 	inline const wf::Wellformed normalization_wf =
-		(statements_wf - Var)
-		| (Stmt <<= (Stmt >>= (Skip | Assign | While | If | Output | Block | Return)))
+		statements_wf
+		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | While | If | Output | Block | Return)))
 		| (If <<= BAtom * (Then >>= Stmt) * (Else >>= Stmt))
 		| (While <<= Stmt * BAtom * (Do >>= Stmt))
 		| (Assign <<= Ident * (Rhs >>= (AExpr | BExpr)))
@@ -169,16 +167,23 @@ namespace whilelang {
 
 	inline const wf::Wellformed three_addr_wf =
 	    (normalization_wf - If - While)
-		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Block | Return)))
+		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | Cond | Jump | Label | Output | Block | Return)))
 		| (Assign <<= Ident * (Rhs >>= (AExpr | BExpr)))
 		| (Return <<= Ident)
 		| (Cond <<= Ident * (Then >>= Label) * (Else >>= Label))
 		| (Jump <<= Label)
 		;
 
+	inline const wf::Wellformed gather_vars_wf =
+	    (three_addr_wf - Var)
+		| (FunDef <<= FunId * ParamList * Idents * (Body >>= Stmt))
+		| (Idents <<= Ident++)
+		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Block | Return)))
+		;
+
 	inline const wf::Wellformed blockify_wf =
-	    three_addr_wf
-		| (FunDef <<= FunId * ParamList * Blocks)
+	    gather_vars_wf
+		| (FunDef <<= FunId * ParamList * Idents * Blocks)
 		| (Blocks <<= Block++[1])
 		| (Block <<= Label * Body * (Jump >>= Jump | Cond | Return))
 		| (Body <<= Stmt++)
