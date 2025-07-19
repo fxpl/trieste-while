@@ -85,6 +85,11 @@ namespace whilelang {
                             return Seq << assign
                                        << (Stmt << (Return << tmp->clone()));
                       },
+
+                In(Block) * T(Stmt) << T(Block)[Block] >>
+                    [](Match &_) -> Node {
+                        return Lift << Block << *_(Block);
+                    },
             },
         };
 
