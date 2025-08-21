@@ -66,11 +66,8 @@ namespace whilelang {
                 }
             }
         }
-        inline Vertices get_non_inline_funs() const {
-            return non_inline_funs;
-        };
 
-        inline bool can_be_inlined(const Vertex &fun) {
+        bool can_be_inlined(const Vertex &fun) {
             return !non_inline_funs.contains(fun);
         };
 
