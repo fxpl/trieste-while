@@ -6,7 +6,6 @@ namespace whilelang {
     Rewriter inlining_rewriter() {
         auto call_graph = std::make_shared<CallGraph>();
         auto cfg = std::make_shared<ControlFlow>();
-        auto cfg_is_dirty = [=](Node) { return cfg->is_dirty(); };
 
         Rewriter rewriter = {
             "inlining_rewriter",
