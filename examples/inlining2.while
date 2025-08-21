@@ -7,5 +7,6 @@ fun foo(i) {
 
 fun main() {
 	output foo(0);
+	return 0;
 }
 

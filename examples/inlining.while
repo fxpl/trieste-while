@@ -15,4 +15,5 @@ fun main() {
 	output bar(4);
 	output bar(8);
 	output bar(16);
+	return 0;
 }

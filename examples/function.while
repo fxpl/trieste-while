@@ -8,4 +8,5 @@ fun square(x) {
 
 fun main() { 
 	output square(4);
+	return 0;
 }
