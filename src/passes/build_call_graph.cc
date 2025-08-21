@@ -14,8 +14,6 @@ namespace whilelang {
                     auto caller = _(FunCall) / FunId;
                     auto surronding_fun = _(FunCall)->parent(FunDef) / FunId;
 
-                    //call_graph->add_vertex(caller);
-                    //call_graph->add_vertex(surronding_fun);
                     call_graph->add_edge(surronding_fun, caller);
 
                     return NoChange;
@@ -24,7 +22,6 @@ namespace whilelang {
 
         pass.post([=](Node) {
             call_graph->calculate_inlineable_funs();
-			call_graph->log_functions_to_inline();
             return 0;
         });
 

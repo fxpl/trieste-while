@@ -48,13 +48,20 @@ namespace whilelang {
                     auto arg_assignments =
                         assign_params(fun_def / ParamList, fun_call / ArgList);
 
-                    Node inline_fun_body = Stmt;
                     auto fun_body = ((fun_def / Body) / Stmt)->clone();
 
-                    // Make sure all children of body are inlined
-                    for (auto child : *fun_body) {
-                        inline_fun_body << (Inlining << child);
-                    }
+                    // Replace all return statements with assignments
+                    fun_body->traverse([=](Node node) {
+                        if (node != Return)
+                            return true;
+
+                        Node assign = Assign << create_return_ident()
+                                             << (AExpr << *node);
+
+                        node->parent()->replace(node, assign);
+
+                        return false;
+                    });
 
                     auto return_ident = create_return_ident();
 
@@ -64,48 +71,9 @@ namespace whilelang {
                         << (Assign << _(Ident)
                                    << (AExpr << (Atom << return_ident)));
 
-                    return Seq << *arg_assignments << *inline_fun_body
+                    return Seq << *arg_assignments << *fun_body
                                << ret_assignment;
                 },
-
-                T(Inlining) << T(Stmt)[Stmt] >> [](Match &_) -> Node {
-                    return Stmt << (Inlining << *_(Stmt));
-                },
-
-                // Replace returns with assignment to return ident
-                T(Inlining) << T(Return)[Return] >> [=](Match &_) -> Node {
-                    auto ident = create_return_ident();
-                    return Assign << ident << (AExpr << *_(Return));
-                },
-
-                T(Inlining) << T(Block)[Block] >> [=](Match &_) -> Node {
-                    Node res = Block;
-                    for (auto child : *_(Block)) {
-                        res << (Inlining << child);
-                    }
-                    return res;
-                },
-
-                T(Inlining) << T(If)[If] >> [](Match &_) -> Node {
-                    auto batom = _(If) / BAtom;
-                    auto then_stmt = _(If) / Then;
-                    auto else_stmt = _(If) / Else;
-
-                    return If << batom << (Inlining << then_stmt)
-                              << (Inlining << else_stmt);
-                },
-
-                T(Inlining) << T(While)[While] >> [](Match &_) -> Node {
-                    auto cond_stmt = _(While) / Stmt;
-                    auto batom = _(While) / BAtom;
-                    auto do_stmt = _(While) / Do;
-                    return While << (Inlining << cond_stmt) << batom
-                                 << (Inlining << do_stmt);
-                },
-
-                T(Inlining) << T(Assign, Skip, Output, Var)[Stmt] >>
-                    [](Match &_) -> Node { return _(Stmt); },
-
             }};
     }
 }

@@ -102,8 +102,6 @@ namespace whilelang {
     inline const auto BAtom = TokenDef("while-batom");
     inline const auto Instructions = TokenDef("while-instructions");
 
-	inline const auto Inlining = TokenDef("while-inlining");
-
     // 3 address code
     inline const auto Label = TokenDef("while-label", flag::print);
     inline const auto Jump = TokenDef("while-jump");
