@@ -63,13 +63,12 @@ namespace whilelang {
                         return false;
                     });
 
-                    auto return_ident = create_return_ident();
-
                     // Replace the previous fun call with assignment
                     // to return ident
                     Node ret_assignment = Stmt
-                        << (Assign << _(Ident)
-                                   << (AExpr << (Atom << return_ident)));
+                        << (Assign
+                            << _(Ident)
+                            << (AExpr << (Atom << create_return_ident())));
 
                     return Seq << *arg_assignments << *fun_body
                                << ret_assignment;
