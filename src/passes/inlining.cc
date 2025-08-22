@@ -11,10 +11,11 @@ namespace whilelang {
         auto arg_it = args->begin();
 
         while (param_it != params->end()) {
+            auto atom = *arg_it / Atom;
             builder
                 << (Stmt
                     << (Assign << (*param_it / Ident)->clone()
-                               << (AExpr << (*arg_it / Atom)->clone())));
+                               << (AExpr << atom->clone())));
             param_it++;
             arg_it++;
         }
@@ -24,9 +25,7 @@ namespace whilelang {
     PassDef inlining(
         std::shared_ptr<CallGraph> call_graph,
         std::shared_ptr<ControlFlow> cfg) {
-        auto create_return_ident = [=]() -> Node { return Ident ^ "__ret"; };
-
-        return {
+        PassDef pass = {
             "inlining",
             normalization_wf,
             dir::topdown,
@@ -47,15 +46,34 @@ namespace whilelang {
                     auto fun_def = cfg->get_fun_def(fun_call);
                     auto arg_assignments =
                         assign_params(fun_def / ParamList, fun_call / ArgList);
-
                     auto fun_body = ((fun_def / Body) / Stmt)->clone();
 
+                    // Ensure inlined function has unique variables
+                    auto fresh_vars = std::map<Location, Location>();
+                    fun_body->traverse([&](Node node) {
+                        if (!(node == Var ||
+                              (node == Expr && node / Expr != Ident)))
+                            return true;
+
+                        auto ident = node == Var ? (node / Ident) : (node / Expr);
+                        auto loc = ident->location();
+
+                        if (fresh_vars.find(loc) == fresh_vars.end()) {
+                            fresh_vars[loc] = _.fresh();
+                        }
+                        Node new_ident = Ident ^ fresh_vars[loc];
+                        ident->parent()->replace(ident, new_ident);
+
+                        return true;
+                    });
+
                     // Replace all return statements with assignments
-                    fun_body->traverse([=](Node node) {
+                    Node ret_var = Ident ^ _.fresh();
+                    fun_body->traverse([&](Node node) {
                         if (node != Return)
                             return true;
 
-                        Node assign = Assign << create_return_ident()
+                        Node assign = Assign << ret_var->clone()
                                              << (AExpr << *node);
 
                         node->parent()->replace(node, assign);
@@ -66,13 +84,19 @@ namespace whilelang {
                     // Replace the previous fun call with assignment
                     // to return ident
                     Node ret_assignment = Stmt
-                        << (Assign
-                            << _(Ident)
-                            << (AExpr << (Atom << create_return_ident())));
+                        << (Assign << _(Ident)
+                                   << (AExpr << (Atom << ret_var->clone())));
 
                     return Seq << *arg_assignments << *fun_body
                                << ret_assignment;
                 },
             }};
+
+        pass.post([=](Node ast) {
+            std::cout << ast;
+            return 0;
+        });
+
+        return pass;
     }
 }
