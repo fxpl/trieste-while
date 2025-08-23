@@ -5,16 +5,23 @@ namespace whilelang {
     using namespace trieste;
 
     // Creates assignments for the parameters of the function call
-    Node assign_params(Node &params, Node &args) {
+    Node assign_params(Match &_, std::map<Location, Location> &fresh_vars, Node &params, Node &args) {
         Node builder = Stmt;
         auto param_it = params->begin();
         auto arg_it = args->begin();
 
         while (param_it != params->end()) {
             auto atom = *arg_it / Atom;
+            auto ident = *param_it / Ident;
+
+            fresh_vars[ident->location()] = _.fresh();
+            auto new_ident = Ident ^ fresh_vars[ident->location()];
+
             builder
                 << (Stmt
-                    << (Assign << (*param_it / Ident)->clone()
+                    << (Var << new_ident))
+                << (Stmt
+                    << (Assign << new_ident->clone()
                                << (AExpr << atom->clone())));
             param_it++;
             arg_it++;
@@ -44,25 +51,25 @@ namespace whilelang {
                     cfg->set_dirty_flag(true);
 
                     auto fun_def = cfg->get_fun_def(fun_call);
-                    auto arg_assignments =
-                        assign_params(fun_def / ParamList, fun_call / ArgList);
-                    auto fun_body = ((fun_def / Body) / Stmt)->clone();
 
-                    // Ensure inlined function has unique variables
                     auto fresh_vars = std::map<Location, Location>();
+                    auto arg_assignments =
+                        assign_params(_, fresh_vars, fun_def / ParamList, fun_call / ArgList);
+
+                    // Ensure inlined function has unique variables and uses
+                    // fresh parameter names
+                    auto fun_body = ((fun_def / Body) / Stmt)->clone();
                     fun_body->traverse([&](Node node) {
-                        if (!(node == Var ||
-                              (node == Expr && node / Expr != Ident)))
+                        if (node != Ident)
                             return true;
 
-                        auto ident = node == Var ? (node / Ident) : (node / Expr);
-                        auto loc = ident->location();
+                        auto loc = node->location();
 
                         if (fresh_vars.find(loc) == fresh_vars.end()) {
                             fresh_vars[loc] = _.fresh();
                         }
                         Node new_ident = Ident ^ fresh_vars[loc];
-                        ident->parent()->replace(ident, new_ident);
+                        node->parent()->replace(node, new_ident);
 
                         return true;
                     });
