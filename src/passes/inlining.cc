@@ -92,11 +92,6 @@ namespace whilelang {
                 },
             }};
 
-        pass.post([=](Node ast) {
-            std::cout << ast;
-            return 0;
-        });
-
         return pass;
     }
 }
