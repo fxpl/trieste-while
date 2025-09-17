@@ -24,19 +24,19 @@ namespace whilelang {
                         (T(Else) << T(Stmt)[Else]) >>
                     [](Match &_) -> Node {
                     auto then = _(Then)->front() == Block ?
-                        _(Then) :
-                        Stmt << (Block << _(Then));
+                        _(Then)->front() :
+                        (Block << _(Then));
                     auto else_ = _(Else)->front() == Block ?
-                        _(Else) :
-                        Stmt << (Block << _(Else));
+                        _(Else)->front() :
+                        (Block << _(Else));
                     return Stmt << (If << _(BExpr) << then << else_);
                 },
 
                 (T(While) << T(BExpr)[BExpr]) * (T(Do) << T(Stmt)[Do]) >>
                     [](Match &_) -> Node {
                     auto do_ = _(Do)->front() == Block ?
-                        _(Do) :
-                        Stmt << (Block << _(Do));
+                        _(Do)->front() :
+                        (Block << _(Do));
                     return Stmt << (While << _(BExpr) << do_);
                 },
 
@@ -48,10 +48,10 @@ namespace whilelang {
                         << (T(FunId)[FunId] * T(ParamList)[ParamList] *
                             (T(Body) << T(Stmt)[Body])) >>
                     [](Match &_) -> Node {
-                    auto body = _(Body)->front() == Block ?
-                        _(Body) :
-                        Stmt << (Block << _(Body));
-                    return FunDef << _(FunId) << _(ParamList) << body;
+                    auto block = _(Body)->front() == Block ?
+                        _(Body)->front() :
+                        (Block << _(Body));
+                    return FunDef << _(FunId) << _(ParamList) << block;
                 },
 
                 T(Return)[Return] << T(AExpr) >>

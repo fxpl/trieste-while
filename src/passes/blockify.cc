@@ -20,7 +20,7 @@ namespace whilelang {
                     (T(FunId)[FunId] *
                      T(ParamList)[ParamList] *
                      T(Idents)[Idents] *
-                     (T(Stmt) << T(Block)[Body])) >>
+                     T(Block)[Body]) >>
                     [](Match &_) -> Node {
                         auto fun_body = _(Body);
                         if (fun_body->size() == 0) {

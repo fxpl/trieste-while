@@ -9,19 +9,6 @@ namespace whilelang {
             normalization_wf,
             dir::topdown,
             {
-                // Error needed for fuzz testing,
-                // otherwise lift with no destination error
-                T(Normalize)
-                        << (T(FunDef)[FunDef]
-                            << (T(FunId) * T(ParamList) *
-                                (T(Stmt)[Body] << --T(Block)))) >>
-                    [](Match &_) -> Node {
-                    return Error
-                        << (ErrorAst << _(FunDef))
-                        << (ErrorMsg ^
-                            "Expected the function body to be a block stmt");
-                },
-
                 T(Program)[Program] << T(FunDef) >> [](Match &_) -> Node {
                     Node res = Instructions;
                     for (auto child : *_(Program)) {
@@ -152,19 +139,19 @@ namespace whilelang {
 
                 T(Normalize) << T(While)[While] >> [](Match &_) -> Node {
                     auto bexpr = _(While) / BExpr;
-                    auto do_stmt = _(While) / Do;
+                    auto do_block = _(While) / Do;
                     return While << (Block << (Normalize << bexpr))
-                                 << (Normalize << do_stmt);
+                                 << (Normalize << do_block);
                 },
 
-                T(While) << (T(Block)[Block] * T(Stmt)[Do]) >>
+                T(While) << (T(Block)[Block] * T(Block)[Do]) >>
                     [](Match &_) -> Node {
                         auto block = _(Block);
                         auto body = _(Do);
                         auto batom = block->pop_back();
                         if (block->empty())
                             block << (Stmt << Skip);
-                        return While << (Stmt << block)
+                        return While << block
                                      << batom
                                      << body;
                     },

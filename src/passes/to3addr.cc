@@ -9,17 +9,17 @@ namespace whilelang {
             three_addr_wf,
             dir::bottomup | dir::once,
             {
-                In(FunDef) * (T(Stmt) << T(Block)[Body]) >>
+                In(FunDef) * T(Block)[Body] >>
                   [](Match &_) -> Node {
                     auto body = _(Body);
                     if (body->at(0) / Stmt == Label) return NoChange;
                     body->push_front(Stmt << (Label ^ _.fresh()));
 
-                    return Stmt << body;
+                    return body;
                   },
 
                 T(Stmt) <<
-                  (T(If) << (T(BAtom)[BAtom] * T(Stmt)[Then] * T(Stmt)[Else])) >>
+                  (T(If) << (T(BAtom)[BAtom] * T(Block)[Then] * T(Block)[Else])) >>
                     [](Match &_) -> Node {
                         auto then_label = Label ^ _.fresh();
                         auto else_label = Label ^ _.fresh();
@@ -35,24 +35,24 @@ namespace whilelang {
                         return Seq << cond_assign
                                    << cond
                                    << (Stmt << then_label)
-                                   << *(_(Then) / Stmt)
+                                   << *_(Then)
                                    << (Stmt << (Jump << end_label->clone()))
                                    << (Stmt << else_label)
-                                   << *(_(Else) / Stmt)
+                                   << *_(Else)
                                    << (Stmt << (Jump << end_label->clone()))
                                    << (Stmt << end_label);
                     },
 
                 T(Stmt) <<
-                  (T(While) << (T(Stmt)[Stmt] * T(BAtom)[BAtom] * T(Stmt)[Do])) >>
+                  (T(While) << (T(Block)[Block] * T(BAtom)[BAtom] * T(Block)[Do])) >>
                       [](Match &_) -> Node {
                             auto cond_label = Label ^ _.fresh();
                             auto do_label = Label ^ _.fresh();
                             auto end_label = Label ^ _.fresh();
                             auto cond_ident = Ident ^ _.fresh();
 
-                            auto cond_stmt = _(Stmt);
-                            auto body = _(Do);
+                            auto cond_block = _(Block);
+                            auto body_block = _(Do);
 
                             auto cond_assign = Stmt << (Assign << cond_ident
                                                                << (BExpr << _(BAtom)));
@@ -61,11 +61,11 @@ namespace whilelang {
                                                        << do_label->clone()
                                                        << end_label->clone()));
                             return Seq << (Stmt << cond_label)
-                                       << *(cond_stmt / Stmt)
+                                       << *cond_block
                                        << cond_assign
                                        << cond
                                        << (Stmt << do_label)
-                                       << *(body / Stmt)
+                                       << *body_block
                                        << (Stmt << (Jump << cond_label->clone()))
                                        << (Stmt << end_label);
                       },
@@ -77,11 +77,11 @@ namespace whilelang {
                       },
 
                 T(Stmt) <<
-                  (T(Return) << (T(Atom) << T(Int)[Int])) >>
+                  (T(Return) << (T(Atom)[Atom] << T(Int, Input))) >>
                       [](Match &_) -> Node {
                             auto tmp = Ident ^ _.fresh();
                             auto assign = Stmt << (Assign << tmp
-                                                          << (AExpr << (Atom << _(Int))));
+                                                          << (AExpr << _(Atom)));
                             return Seq << assign
                                        << (Stmt << (Return << tmp->clone()));
                       },

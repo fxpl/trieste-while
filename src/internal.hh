@@ -138,11 +138,11 @@ namespace whilelang {
 
     inline const wf::Wellformed statements_wf =
 		(expressions_wf - Group - Paren - Do - Then - Else - Body)
-		| (FunDef <<= FunId * ParamList * (Body >>= Stmt))
+		| (FunDef <<= FunId * ParamList * (Body >>= Block))
 		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | While | If | Output | Block | Return)))
 		| (Var <<= Ident)[Ident]
-		| (If <<= BExpr * (Then >>= Stmt) * (Else >>= Stmt))
-		| (While <<= BExpr * (Do >>= Stmt))
+		| (If <<= BExpr * (Then >>= Block) * (Else >>= Block))
+		| (While <<= BExpr * (Do >>= Block))
 		| (Assign <<= Ident * (Rhs >>= AExpr))
 		| (Output <<= AExpr)
 		| (Block <<= Stmt++[1])
@@ -152,8 +152,8 @@ namespace whilelang {
 	inline const wf::Wellformed normalization_wf =
 		statements_wf
 		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | While | If | Output | Block | Return)))
-		| (If <<= BAtom * (Then >>= Stmt) * (Else >>= Stmt))
-		| (While <<= Stmt * BAtom * (Do >>= Stmt))
+		| (If <<= BAtom * (Then >>= Block) * (Else >>= Block))
+		| (While <<= Block * BAtom * (Do >>= Block))
 		| (Assign <<= Ident * (Rhs >>= (AExpr | BExpr)))
 		| (AExpr <<= (Expr >>= (Atom | Add | Sub | Mul | FunCall)))
 		| (Atom <<= (Expr >>= (Int | Ident | Input)))
@@ -183,7 +183,7 @@ namespace whilelang {
 
 	inline const wf::Wellformed gather_vars_wf =
 	    (three_addr_wf - Var)
-		| (FunDef <<= FunId * ParamList * Idents * (Body >>= Stmt))
+		| (FunDef <<= FunId * ParamList * Idents * (Body >>= Block))
 		| (Idents <<= Ident++)
 		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Block | Return)))
 		;

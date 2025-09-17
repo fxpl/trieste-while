@@ -57,8 +57,8 @@ namespace whilelang {
                     // Remove empty blocks
                     T(Stmt)[Stmt] << (T(Block)[Block] << End) >>
                         [](Match &_) -> Node {
-                        if (_(Stmt)->parent()->in({If, While, FunDef})) {
-                            // Make sure fun defs, if and while statements
+                        if (_(Stmt)->parent()->in({If, While})) {
+                            // Make sure if and while statements
                             // don't have their body removed
                             return Stmt << (Block << (Stmt << Skip));
                         }

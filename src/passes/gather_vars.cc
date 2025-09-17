@@ -16,7 +16,7 @@ namespace whilelang {
                         auto body = _(FunDef) / Body;
 
                         Nodes vars;
-                        (body / Stmt)->get_symbols(vars, [](const Node &n) {
+                        body->get_symbols(vars, [](const Node &n) {
                             return n == Var;
                         });
 
