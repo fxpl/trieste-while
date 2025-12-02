@@ -1,4 +1,5 @@
 #pragma once
+#include "analyses/utils.hh"
 #include "lang.hh"
 
 namespace whilelang {

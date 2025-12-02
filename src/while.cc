@@ -1,5 +1,5 @@
 #include "lang.hh"
-#include "utils.hh"
+#include "analyses/utils.hh"
 
 #include <CLI/CLI.hpp>
 #include <trieste/trieste.h>
@@ -47,7 +47,7 @@ int main(int argc, char const *argv[]) {
     app.add_flag("-i", run_inlining, "Enables the inlining optimization.");
 
     std::filesystem::path output_path = "";
-    app.add_flag(
+    app.add_option(
         "-o,--output",
         output_path,
         "Output file for the compiled program. If not specified, "

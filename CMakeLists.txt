@@ -37,6 +37,7 @@ src/compiler.cc
 src/inlining_rewriter.cc
 
 src/utils.cc
+src/analyses/utils.cc
 src/control_flow.cc
 
 src/passes/generate_mermaid.cc
@@ -66,11 +67,8 @@ src/passes/inlining.cc
 add_executable(while_trieste
 src/while_trieste.cc
 src/parser.cc
-src/reader.cc
 
-src/passes/generate_mermaid.cc
 src/utils.cc
-src/control_flow.cc
 
 src/passes/functions.cc
 src/passes/expressions.cc
