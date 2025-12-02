@@ -89,7 +89,7 @@ namespace whilelang {
               "//[^\n]*" >> [](auto &) {}, // no-op
 
               // Functions
-              "fun\\b" >> [](auto &m) { m.term(); m.add(FunDef); },
+              "fun\\b" >> [](auto &m) { m.term({FunDef}); m.push(FunDef); },
               "var\\b" >> [](auto &m) { m.push(Var); },
               "return\\b" >> [](auto &m) { m.push(Return); },
 
