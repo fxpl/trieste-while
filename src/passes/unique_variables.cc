@@ -7,13 +7,13 @@ namespace whilelang {
 
     PassDef unique_variables(
         std::shared_ptr<std::map<std::string, std::string>> vars_map) {
-        return {
+        PassDef pass = {
             "unique_variables",
             statements_wf,
             dir::bottomup | dir::once,
             {
                 T(Ident)[Ident] >> [=](Match &_) -> Node {
-                    auto var = get_var(_(Ident));
+                    auto var = build_qualified_name(_(Ident));
                     auto new_var = vars_map->find(var);
 
                     if (new_var == vars_map->end()) {
@@ -26,5 +26,10 @@ namespace whilelang {
                     }
                 },
             }};
+        pass.pre([vars_map](Node) {
+            vars_map->clear();
+            return 0;
+        });
+        return pass;
     }
 }
