@@ -101,13 +101,13 @@ namespace whilelang {
             {
                 // Control flow inside of While
                 T(While)[While] >> [=](Match &_) -> Node {
-                    auto stmt = _(While) / Stmt;
+                    auto cond_block = _(While) / Block;
                     auto cond = _(While) / BAtom;
                     auto body = _(While) / Do;
 
-                    cfg->add_edge(get_last_basic_children(stmt), cond);
+                    cfg->add_edge(get_last_basic_children(cond_block), cond);
                     cfg->add_edge(cond, get_first_basic_child(body));
-                    cfg->add_edge(get_last_basic_children(body), get_first_basic_child(stmt));
+                    cfg->add_edge(get_last_basic_children(body), get_first_basic_child(cond_block));
 
                     return NoChange;
                 },

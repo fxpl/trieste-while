@@ -50,7 +50,7 @@ namespace whilelang {
 		Skip |
 		If | Then | Else |
 		While | Do |
-		FunDef | Return | FunCall | Var |
+		FunDef | Return | Var |
 		Output |
 		Int | Ident | Input |
 		True | False | Not |
@@ -174,7 +174,7 @@ namespace whilelang {
 
 	inline const wf::Wellformed three_addr_wf =
 	    (normalization_wf - If - While)
-		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | Cond | Jump | Label | Output | Block | Return)))
+		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | Cond | Jump | Label | Output | Return)))
 		| (Assign <<= Ident * (Rhs >>= (AExpr | BExpr)))
 		| (Return <<= Ident)
 		| (Cond <<= Ident * (Then >>= Label) * (Else >>= Label))
@@ -185,7 +185,7 @@ namespace whilelang {
 	    (three_addr_wf - Var)
 		| (FunDef <<= FunId * ParamList * Idents * (Body >>= Block))
 		| (Idents <<= Ident++)
-		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Block | Return)))
+		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Return)))
 		;
 
 	inline const wf::Wellformed blockify_wf =

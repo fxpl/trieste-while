@@ -58,7 +58,7 @@ namespace whilelang {
 
                     // Ensure inlined function has unique variables and uses
                     // fresh parameter names
-                    auto fun_body = ((fun_def / Body) / Stmt)->clone();
+                    auto fun_body = (fun_def / Body)->clone();
                     fun_body->traverse([&](Node node) {
                         if (node != Ident)
                             return true;

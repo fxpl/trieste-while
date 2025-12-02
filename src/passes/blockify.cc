@@ -23,10 +23,7 @@ namespace whilelang {
                      T(Block)[Body]) >>
                     [](Match &_) -> Node {
                         auto fun_body = _(Body);
-                        if (fun_body->size() == 0) {
-                            return Error << (ErrorAst << _(FunId))
-                                         << (ErrorMsg ^ "Empty function body");
-                        } else if (fun_body->at(0) / Stmt != Label) {
+                        if (fun_body->at(0) / Stmt != Label) {
                             return Error << (ErrorAst << _(FunId))
                                          << (ErrorMsg ^ "Function body must start with a label");
                         }

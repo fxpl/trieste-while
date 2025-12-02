@@ -57,12 +57,13 @@ namespace whilelang {
                     // Remove empty blocks
                     T(Stmt)[Stmt] << (T(Block)[Block] << End) >>
                         [](Match &_) -> Node {
-                        if (_(Stmt)->parent()->in({If, While})) {
-                            // Make sure if and while statements
-                            // don't have their body removed
-                            return Stmt << (Block << (Stmt << Skip));
-                        }
                         return {};
+                    },
+
+                    // Ensure if and while statements have non-empty bodies
+                    In(If, While) * (T(Block)[Block] << End) >>
+                        [](Match &_) -> Node {
+                        return _(Block) << (Stmt << Skip);
                     },
 
                     // Remove sequences of skip statements
