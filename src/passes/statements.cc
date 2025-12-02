@@ -82,19 +82,19 @@ namespace whilelang {
                                  << (ErrorMsg ^ "Unexpected statement");
                 },
 
-                T(Assign) << ((T(AExpr) << T(Ident)) * Any[Rhs]) >>
-                    [](Match &_) -> Node {
-                    return Error
-                        << (ErrorAst << _(Rhs))
-                        << (ErrorMsg ^ "Invalid right-hand side to assignment");
-                },
-
                 T(Assign)[Assign]
                         << ((T(AExpr) << T(Ident)) * (T(Group) << End)) >>
                     [](Match &_) -> Node {
                     return Error << (ErrorAst << _(Assign))
                                  << (ErrorMsg ^
                                      "Expected right-hand side to assignment");
+                },
+
+                T(Assign) << ((T(AExpr) << T(Ident)) * Any[Rhs]) >>
+                    [](Match &_) -> Node {
+                    return Error
+                        << (ErrorAst << _(Rhs))
+                        << (ErrorMsg ^ "Invalid right-hand side to assignment");
                 },
 
                 T(Assign)[Assign] << Any >> [](Match &_) -> Node {
@@ -172,41 +172,16 @@ namespace whilelang {
                             "Expected the function body to be a statement");
                 },
 
-                T(ArgList)[ArgList] << !T(Arg) >> [](Match &_) -> Node {
-                    return Error << (ErrorAst << _(ArgList))
-                                 << (ErrorMsg ^
-                                     "Expected the function arguments to be "
-                                     "arguments");
-                },
-
-                T(Arg)[Arg] << !T(AExpr) >> [](Match &_) -> Node {
-                    return Error << (ErrorAst << _(ArgList))
-                                 << (ErrorMsg ^
-                                     "Expected the function arguments to be "
-                                     "arithmetic expressions");
-                },
-
                 In(Return) * Start * (!T(AExpr))[AExpr] >>
                     [](Match &_) -> Node {
                     return Error << (ErrorAst << _(AExpr))
                                  << (ErrorMsg ^ "Expected expression");
                 },
 
-                In(Semi)[Semi] * (!T(Stmt))[Expr] >> [](Match &_) -> Node {
+                In(Semi) * (!T(Stmt))[Expr] >> [](Match &_) -> Node {
                     return Error << (ErrorAst << _(Expr))
                                  << (ErrorMsg ^ "Expected statement");
                 },
-
-                In(File) * (!T(Stmt))[Expr] >> [](Match &_) -> Node {
-                    return Error << (ErrorAst << _(Expr))
-                                 << (ErrorMsg ^ "Expected statement");
-                },
-
-                T(File) << End >> [](Match &_) -> Node {
-                    return Error << (ErrorAst << _(File))
-                                 << (ErrorMsg ^ "Expected statement");
-                },
-
             }};
     }
 }

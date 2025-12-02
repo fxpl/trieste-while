@@ -10,27 +10,11 @@ namespace whilelang {
             expressions_wf,
             dir::bottomup,
             {
-
-                T(Ident)[Ident] * T(Paren)[Paren] >> [](Match &_) -> Node {
+                UNHANDLED * T(Ident)[Ident] * T(Paren)[Paren] >> [](Match &_) -> Node {
                     return AExpr
                         << (FunCall << (FunId ^ _(Ident))
                                     << (ArgList << *_(Paren)));
                 },
-
-                T(ArgList)
-                        << (T(Comma, Group)[Group]
-                            << --(T(Ident) * T(Paren))) >>
-                    [](Match &_) -> Node {
-                    Node args = ArgList;
-                    for (auto child : *_(Group)) {
-                        args << (Arg << child);
-                    }
-
-                    return args;
-                },
-
-                In(ArgList) * T(AExpr)[AExpr] >>
-                    [](Match &_) -> Node { return Arg << _(AExpr); },
 
                 UNHANDLED * T(True, False)[Expr] >>
                     [](Match &_) -> Node { return BExpr << _(Expr); },
@@ -56,7 +40,23 @@ namespace whilelang {
                 UNHANDLED * T(Group) << (T(AExpr, BExpr)[Expr] * End) >>
                     [](Match &_) -> Node { return _(Expr); },
 
+                In(ArgList) * T(AExpr)[AExpr] >>
+                    [](Match &_) -> Node { return (Arg << _(AExpr)); },
+
+                In(ArgList) * (T(Comma)[Comma]) >>
+                    [](Match &_) -> Node {
+                    Node args = Seq;
+                    for (auto child : *_(Comma)) {
+                        args << (Arg << child);
+                    }
+
+                    return args;
+                },
                 // Error rules
+                --In(Paren) * T(Comma)[Comma] >> [](Match &_) -> Node {
+                    return Error << (ErrorAst << _(Comma))
+                                 << (ErrorMsg ^ "Unexpected comma");
+                },
                 T(Paren)[Paren] << End >> [](Match &_) -> Node {
                     return Error << (ErrorAst << _(Paren))
                                  << (ErrorMsg ^ "Empty parenthesis");
@@ -118,6 +118,20 @@ namespace whilelang {
                 In(And, Or) * (!T(BExpr))[Expr] >> [](Match &_) -> Node {
                     return Error << (ErrorAst << _(Expr))
                                  << (ErrorMsg ^ "Invalid operand");
+                },
+
+                T(ArgList) << (!T(Arg))[Arg] >> [](Match &_) -> Node {
+                    return Error << (ErrorAst << _(Arg))
+                                 << (ErrorMsg ^
+                                     "Expected the function arguments to be "
+                                     "arguments");
+                },
+
+                T(Arg)[Arg] << !T(AExpr) >> [](Match &_) -> Node {
+                    return Error << (ErrorAst << _(Arg))
+                                 << (ErrorMsg ^
+                                     "Expected the function arguments to be "
+                                     "arithmetic expressions");
                 },
 
                 T(Arg)[Arg] << (T(Group) << (Start * End)) >>
