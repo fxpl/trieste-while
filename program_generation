@@ -256,7 +256,7 @@ def main():
         return
 
     # Write to file
-    path = "examples/generated.while"
+    path = "generated/generated.while"
     with open(path, "w") as f:
         f.write(generated)
 

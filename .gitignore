@@ -3,5 +3,6 @@ build
 .vscode
 .cache
 *.out
-examples/generated.while
+generated/generated.while
+testsuite/examples/*_out
 stats_result.txt

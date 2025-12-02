@@ -1,5 +1,0 @@
-fun main() {
-    var x;
-    x := (() ());
-    return 0;
-}

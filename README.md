@@ -17,6 +17,15 @@ The first one is used if you want to run static analysis and compile the program
 The second one only runs the parsing passes and the normalisation pass. Both have a
 theoretically useful `--help` option.
 
+## Using the test suite
+
+After compiling the project, you can save the output of compiling
+all the example programs by running `ninja update-dump` in the
+`./build` directory. After that you can run `ctest` to compile all
+the programs again and compare the output (you may have to run
+`cmake` once before it works). This is useful for regression
+testing when making changes to the compiler.
+
 ## Compiling to Verona Bytecode
 
 Running `./build/while foo.while` will produce a file called `foo.trieste`. This

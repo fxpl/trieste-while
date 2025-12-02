@@ -1,4 +1,0 @@
-fun main() {
-    if true then {} else skip;
-    return 0;
-}

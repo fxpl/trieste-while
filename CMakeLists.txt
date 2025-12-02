@@ -96,6 +96,9 @@ target_link_libraries(while_trieste
   vbc::include
 )
 
+enable_testing()
+add_subdirectory(testsuite)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
