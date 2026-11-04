@@ -21,12 +21,17 @@ namespace whilelang {
 
                 In(ParamList) * T(Comma, Group)[Group] >>
                     [](Match &_) -> Node {
-                    return Seq << *_(Group);
+                    return Seq << *_[Group];
                 },
 
-                In(ParamList) * T(Ident)[Ident] >>
-                    [](Match &_) -> Node { return (Param << _(Ident)); },
-
+                In(ParamList) * Any[Param]([](auto& n) -> bool { 
+                            return n.front()->type() != Param; }) >>
+                    [](Match &_) -> Node { 
+                        auto param_type = _(Param)->type();
+                        return param_type == Ident 
+                        ? Param << _(Param) 
+                        : Error << (ErrorAst << _(Param)) 
+                                << (ErrorMsg ^ "Invalid parameter"); },
                 // Error rules
                 In(Program, File) * (!T(FunDef))[Expr] >> [](Match &_) -> Node {
                     return Error

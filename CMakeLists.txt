@@ -3,11 +3,12 @@ project(while VERSION 0.1.0 LANGUAGES CXX)
 
 include(FetchContent)
 
+
 FetchContent_Declare(
   trieste
-  GIT_REPOSITORY https://github.com/microsoft/Trieste
-  GIT_TAG 7d0b29403b253e924bf66eb287e76c3954bd14f8
-  )
+  GIT_REPOSITORY https://github.com/microsoft/Trieste 
+  GIT_TAG main
+  ) 
 
 set(TRIESTE_BUILD_SAMPLES OFF)
 set(TRIESTE_ENABLE_TESTING OFF)
@@ -18,7 +19,7 @@ FetchContent_MakeAvailable(trieste)
 FetchContent_Declare(
   vbc
   GIT_REPOSITORY https://github.com/sylvanc/verona-bc
-  GIT_TAG 0cc66f8b4bd7ccdfe299f01dca4598fb961fe771
+  GIT_TAG f1718f1677031f3e645e93bfea24218c43c368db
   )
 
 FetchContent_MakeAvailable(vbc)
@@ -106,4 +107,3 @@ add_subdirectory(testsuite)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "-g")
