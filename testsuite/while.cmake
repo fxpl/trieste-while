@@ -1,19 +1,21 @@
-# Arguments for testing while samples
-macro(toolinvoke ARGS testfile outputdir)
-  get_filename_component(test_name ${testfile} NAME_WE)
-  set(${ARGS} ${testfile} -o ${outputdir}/${test_name}.trieste)
-endmacro()
+# Run the while compiler on every .while sample.
+set(TESTSUITE_REGEX "\\.while$")
+set(TESTSUITE_DEFINE define_while_test)
 
-# Regular expression to match test files
-# This regex matches files with the .while extension
-set(TESTSUITE_REGEX ".*\\.while")
+function(define_while_test test)
+  cmake_path(REMOVE_EXTENSION test LAST_ONLY OUTPUT_VARIABLE stem)
+  cmake_path(GET test STEM test_name)
+  set(node "${stem}_out")
 
-set(TESTSUITE_EXE "$<TARGET_FILE:while>")
+  testsuite_output_path(output NODE "${node}" FILE "${test_name}.trieste")
 
-function (test_output_dir out test)
-  # Use get_filename_component to remove the file extension and keep the directory structure
-  get_filename_component(test_dir ${test} DIRECTORY)
-  get_filename_component(test_name ${test} NAME_WE)
-  # Create the output directory relative to the test directory
-  set(${out} "${test_dir}/${test_name}_out/" PARENT_SCOPE)
+  testsuite_add_test(
+    NAME "${node}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    GOLDENS
+      exit_code.txt
+      stdout.txt
+      stderr.txt
+      "${test_name}.trieste"
+    COMMAND "$<TARGET_FILE:while>" "${test}" -o "${output}")
 endfunction()
