@@ -149,8 +149,12 @@ namespace whilelang {
 		| (Return <<= AExpr)
 		;
 
+	inline const wf::Wellformed unique_variables_wf =
+    statements_wf
+    ;
+
 	inline const wf::Wellformed normalization_wf =
-		statements_wf
+		unique_variables_wf
 		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | While | If | Output | Block | Return)))
 		| (If <<= BAtom * (Then >>= Block) * (Else >>= Block))
 		| (While <<= Block * BAtom * (Do >>= Block))
