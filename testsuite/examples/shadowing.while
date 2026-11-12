@@ -1,0 +1,13 @@
+fun main() {
+	var x;
+	x := 1;
+	if (0 < 1) then {
+		var x;
+		x := 2;
+		output x
+	} else {
+		skip
+	};
+	output x;
+	return 0;
+}
