@@ -58,7 +58,9 @@ namespace whilelang {
 
                         Node res_vars = vbcc::Vars;
                         for (auto ident : *idents) {
-                            res_vars << (vbcc::LocalId ^ ident);
+                            res_vars << (vbcc::VarDef 
+                                << (vbcc::LocalId ^ ident)
+                                << (vbcc::I32)); //Vars are always AExprs
                         }
 
                         Node res_body = Compile << blocks;
