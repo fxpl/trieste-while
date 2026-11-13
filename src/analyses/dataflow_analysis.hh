@@ -113,7 +113,10 @@ namespace whilelang {
             for (Node succ : cfg->successors(inst)) {
                 bool changed = Impl::state_join(state_table.at(succ), out_state);
 
-                if (changed) {
+                // A call site reads the returned value directly from the state
+                // of each Return, so it must be revisited whenever a Return
+                // is, even if no variable in its own state changed
+                if (changed || inst == Return) {
                     worklist.push_back(succ);
                 }
             }
