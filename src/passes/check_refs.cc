@@ -10,6 +10,14 @@ namespace whilelang {
             statements_wf,
             dir::bottomup | dir::once,
             {
+                T(Assign) << T(Ident)[Ident]([](auto &n) -> bool {
+                    auto defs = n.front()->lookup();
+                    return defs.size() == 1 && defs.front() == Param;
+                }) >> [](Match &_) -> Node {
+                    return Error << (ErrorAst << _(Ident))
+                                 << (ErrorMsg ^ "Parameters cannot be reassigned");
+                },
+
                 T(AExpr, Assign) << T(Ident)[Ident] >> [](Match &_) -> Node {
                     auto def = _(Ident)->lookup();
                     if (def.empty()) {

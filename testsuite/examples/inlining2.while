@@ -1,4 +1,6 @@
-fun foo(i) {
+fun foo(n) {
+	var i;
+	i := n;
 	while 0 < i do {
 		i := i - 1;
 	};
