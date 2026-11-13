@@ -8,5 +8,4 @@ fun factorial(n) {
 
 fun main() { // Main has some context ?
 	output factorial(5);
-	return 0;
 }

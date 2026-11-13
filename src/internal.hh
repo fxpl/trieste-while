@@ -180,7 +180,7 @@ namespace whilelang {
 	    (normalization_wf - If - While)
 		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | Cond | Jump | Label | Output | Return)))
 		| (Assign <<= Ident * (Rhs >>= (AExpr | BExpr)))
-		| (Return <<= Ident)
+		| (Return <<= ~Ident)
 		| (Cond <<= Ident * (Then >>= Label) * (Else >>= Label))
 		| (Jump <<= Label)
 		;

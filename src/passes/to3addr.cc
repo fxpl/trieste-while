@@ -1,4 +1,5 @@
 #include "../internal.hh"
+#include "../utils.hh"
 
 namespace whilelang {
     using namespace trieste;
@@ -12,8 +13,19 @@ namespace whilelang {
                 In(FunDef) * T(Block)[Body] >>
                   [](Match &_) -> Node {
                     auto body = _(Body);
-                    if (body->at(0) / Stmt == Label) return NoChange;
-                    body->push_front(Stmt << (Label ^ _.fresh()));
+                    auto fun_id = body->parent() / FunId;
+                    bool is_main = get_identifier(fun_id) == "main";
+                    bool has_label = body->at(0) / Stmt == Label;
+                    if (has_label && !is_main) return NoChange;
+
+                    if (!has_label) {
+                        body->push_front(Stmt << (Label ^ _.fresh()));
+                    }
+
+                    // The main function implicitly returns nothing at the end
+                    if (is_main) {
+                        body->push_back(Stmt << Return);
+                    }
 
                     return body;
                   },

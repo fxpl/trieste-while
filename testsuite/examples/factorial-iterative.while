@@ -15,5 +15,4 @@ fun fact(x) {
 
 fun main() {
 	output(fact(4));
-	return 0;
 }

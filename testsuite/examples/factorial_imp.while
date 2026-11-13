@@ -10,5 +10,4 @@ fun main() {
 		i := i + 1;
 	};
 	output fact;
-	return 0;
 }

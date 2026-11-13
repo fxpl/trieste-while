@@ -8,5 +8,4 @@ fun bar() {
 
 fun main() {
 	output foo();
-	return 0;
 }

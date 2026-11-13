@@ -54,7 +54,8 @@ namespace whilelang {
                                                        << (vbcc::I32));
                         }
 
-                        Node res_type = vbcc::I32;
+                        // The main function returns none, all others return an int
+                        Node res_type = fun_id == "main" ? vbcc::None : vbcc::I32;
 
                         Node res_vars = vbcc::Vars;
                         for (auto ident : *idents) {
@@ -92,6 +93,17 @@ namespace whilelang {
                             res_body << (Compile << child);
                         }
 
+                        // Returning without a value (from main) returns none
+                        if (terminator == Return && terminator->empty()) {
+                            auto tmp = vbcc::LocalId ^ _.fresh();
+                            res_body << (vbcc::Const << tmp
+                                                     << vbcc::None
+                                                     << vbcc::None);
+                            return vbcc::Label << label_id
+                                               << res_body
+                                               << (vbcc::Return << tmp->clone());
+                        }
+
                         return vbcc::Label << label_id
                                            << res_body
                                            << (Compile << terminator);
@@ -119,10 +131,9 @@ namespace whilelang {
                     },
 
                 T(Compile) <<
-                    T(Return)[Return] >>
+                    (T(Return) << T(Ident)[Ident]) >>
                     [](Match &_) -> Node {
-                        auto ident = _(Return) / Ident;
-                        return vbcc::Return << (vbcc::LocalId ^ ident);
+                        return vbcc::Return << (vbcc::LocalId ^ _(Ident));
                     },
 
                 // Atoms

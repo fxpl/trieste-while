@@ -8,5 +8,4 @@ fun main() {
     } else {
         output 2;
     };
-    return 0;
 }

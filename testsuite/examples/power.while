@@ -4,5 +4,4 @@ fun power(x) {
 
 fun main() {
 	output power(power(2));
-	return 0;
 }

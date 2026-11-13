@@ -7,5 +7,4 @@ fun main() {
         skip;
     };
     output y;
-    return 0;
 }

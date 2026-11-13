@@ -9,5 +9,4 @@ fun main() {
 		skip
 	};
 	output x;
-	return 0;
 }
