@@ -228,7 +228,7 @@ namespace whilelang {
                         auto bool_val = _(Expr);
                         return vbcc::Const << (vbcc::LocalId ^ _(Ident))
                                            << vbcc::Bool
-                                           << (vbcc::Int ^ (bool_val == True ? "1" : "0"));
+                                           << (bool_val == True ? vbcc::True : vbcc::False);
                     },
 
 
