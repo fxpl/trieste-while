@@ -35,6 +35,7 @@ src/lib.cc
 
 add_executable(while
 src/while.cc
+src/test.cc
 src/parser.cc
 src/reader.cc
 src/optimization_analysis.cc

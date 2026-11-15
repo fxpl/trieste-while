@@ -3,10 +3,9 @@
 namespace whilelang {
     using namespace trieste;
 
-    Rewriter optimization_analysis(bool run_zero_analysis) {
+    Rewriter optimization_analysis() {
         auto cfg = std::make_shared<ControlFlow>();
         auto cfg_is_dirty = [=](Node) { return cfg->is_dirty(); };
-        auto run_zero = [=](Node) { return run_zero_analysis; };
 
         Rewriter rewriter = {
             "optimization_analysis",
@@ -15,7 +14,6 @@ namespace whilelang {
                 gather_instructions(cfg),
                 gather_flow_graph(cfg),
 
-                z_analysis(cfg).cond(run_zero),
                 constant_folding(cfg),
 
                 gather_functions(cfg).cond(cfg_is_dirty),

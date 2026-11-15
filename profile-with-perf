@@ -1,6 +1,6 @@
 #!/bin/bash
 
-perf record -F 90 -g ./build/while -s ./examples/generated.while
+perf record -F 90 -g ./build/while -O1 ./examples/generated.while
 
 perf script > out.perf
 

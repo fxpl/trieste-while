@@ -8,8 +8,9 @@ namespace whilelang {
         std::shared_ptr<std::map<std::string, std::string>> vars_map,
         bool run_stats,
         bool run_mermaid);
+
     Rewriter interpret();
-    Rewriter optimization_analysis(bool run_zero_analysis);
+    Rewriter optimization_analysis();
     Rewriter inlining_rewriter();
     Rewriter compiler();
 

@@ -1,5 +1,6 @@
 #include "lang.hh"
 #include "analyses/utils.hh"
+#include "test.hh"
 
 #include <CLI/CLI.hpp>
 #include <trieste/trieste.h>
@@ -7,32 +8,28 @@
 
 int main(int argc, char const *argv[]) {
     CLI::App app;
+    app.require_subcommand(0, 1);
 
     std::filesystem::path input_path;
-    app.add_option("input", input_path, "Path to the input file ")->required();
+    app.add_option("input", input_path, "Path to the input file ");
 
     std::string log_level;
-    app.add_option(
-           "-l,--log",
-           log_level,
-           "Set the log level (None, Error, Output, Warn, Info, Debug, Trace).")
+    auto log_description =
+        "Set the log level (None, Error, Output, Warn, Info, Debug, Trace).";
+    app.add_option("-l,--log", log_level, log_description)
         ->check(trieste::logging::set_log_level_from_string);
 
     bool run = false;
-    bool run_static_analysis = false;
-    bool run_zero_analysis = false;
+    int opt_level = 0;
     bool run_gather_stats = false;
     bool run_mermaid = false;
-    bool run_inlining = false;
     app.add_flag("-r,--run", run, "Run the program (prompting inputs).");
-    app.add_flag(
-        "-s,--static-analysis",
-        run_static_analysis,
-        "Compile and run static analysis on the program.");
-    app.add_flag(
-        "-z,--zero-analysis",
-        run_zero_analysis,
-        "Enable zero analysis in the static analysis. ");
+    app.add_option(
+           "-O,--opt-level",
+           opt_level,
+           "Optimisation level: 0 (none), 1 (static analysis), "
+           "2 (static analysis and inlining).")
+        ->check(CLI::Range(0, 2));
 
     app.add_flag(
         "-p, --print-stats",
@@ -44,7 +41,6 @@ int main(int argc, char const *argv[]) {
         run_mermaid,
         "Runs the mermaid pass which parses the final AST into mermaid "
         "format ");
-    app.add_flag("-i", run_inlining, "Enables the inlining optimization.");
 
     std::filesystem::path output_path = "";
     app.add_option(
@@ -53,10 +49,29 @@ int main(int argc, char const *argv[]) {
         "Output file for the compiled program. If not specified, "
         "the output will be the input file name with .trieste extension.");
 
+    auto test = app.add_subcommand("test", "Fuzz test the compiler passes");
+    whilelang::TestOptions test_options;
+    whilelang::configure_test_options(*test, test_options);
+    test->add_option("-l,--log", log_level, log_description)
+        ->check(trieste::logging::set_log_level_from_string);
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError &e) {
         return app.exit(e);
+    }
+
+    if (*test) {
+        if (test_options.size_stats && log_level.empty())
+            trieste::logging::set_log_level_from_string("Info");
+
+        return whilelang::run_tests(test_options);
+    }
+
+    if (input_path.empty()) {
+        std::cerr << "An input file is required" << std::endl
+                  << "Run with --help for more information." << std::endl;
+        return 1;
     }
 
     auto vars_map = std::make_shared<std::map<std::string, std::string>>();
@@ -70,6 +85,9 @@ int main(int argc, char const *argv[]) {
 
         auto result = reader.read();
 
+        bool run_static_analysis = opt_level >= 1;
+        bool run_inlining = opt_level >= 2;
+
         if (run_inlining) {
             result = result >> whilelang::inlining_rewriter();
         }
@@ -77,7 +95,7 @@ int main(int argc, char const *argv[]) {
         if (run_static_analysis) {
             do {
                 result = result >>
-                    whilelang::optimization_analysis(run_zero_analysis);
+                    whilelang::optimization_analysis();
             } while (result.ok && result.total_changes > 0 &&
                      !program_empty(result.ast));
         }

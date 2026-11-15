@@ -23,6 +23,8 @@ namespace whilelang {
         successor.clear();
         fun_call_to_def.clear();
         fun_def_to_calls.clear();
+        program_entry = {};
+        program_exit = {};
     }
 
     void ControlFlow::add_var(Node ident) {

@@ -18,17 +18,16 @@ namespace whilelang {
                     return NoChange;
                 },
                 T(FunCall)[FunCall] >> [=](Match &_) -> Node {
-                    auto fun_id = _(FunCall) / FunId;
-
                     fun_calls->insert(_(FunCall));
                     return NoChange;
                 },
             }};
 
         gather_functions.pre([=](Node) {
-            if (cfg->is_dirty()) {
-                cfg->clear();
-            }
+            // The pass may be run on many programs, so start from scratch
+            cfg->clear();
+            fun_defs->clear();
+            fun_calls->clear();
             return 0;
         });
 

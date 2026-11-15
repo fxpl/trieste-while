@@ -1,4 +1,4 @@
-# Run the while compiler with static analysis (-si) on every .while sample.
+# Run the while compiler with static analysis and inlining (-O2) on every .while sample.
 set(TESTSUITE_REGEX "\\.while$")
 set(TESTSUITE_DEFINE define_while_analyse_test)
 
@@ -17,5 +17,5 @@ function(define_while_analyse_test test)
       stdout.txt
       stderr.txt
       "${test_name}.trieste"
-    COMMAND "$<TARGET_FILE:while>" -si "${test}" -o "${output}")
+    COMMAND "$<TARGET_FILE:while>" -O2 "${test}" -o "${output}")
 endfunction()
