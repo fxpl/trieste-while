@@ -11,9 +11,10 @@ namespace whilelang {
             dir::bottomup,
             {
                 UNHANDLED * T(Ident)[Ident] * T(Paren)[Paren] >> [](Match &_) -> Node {
+                    auto call = FunCall ^ _(Ident);
                     return AExpr
-                        << (FunCall << (FunId ^ _(Ident))
-                                    << (ArgList << *_(Paren)));
+                        << (call << (FunId ^ _(Ident))
+                                 << (ArgList << *_(Paren)));
                 },
 
                 UNHANDLED * T(True, False)[Expr] >>
