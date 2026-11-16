@@ -64,7 +64,7 @@ namespace whilelang {
         void init_state_table(
             const Nodes &instructions,
             const Vars &vars,
-            const Node &program_entry,
+            const Nodes &program_points,
             State &first_state);
     };
 
@@ -79,7 +79,7 @@ namespace whilelang {
     void DataFlowAnalysis<State, LatticeValue, Impl>::init_state_table(
         const Nodes &instructions,
         const Vars &vars,
-        const Node &program_start,
+        const Nodes &program_points,
         State &first_state) {
         if (instructions.empty()) {
             throw std::runtime_error("No instructions exist for this program");
@@ -89,7 +89,9 @@ namespace whilelang {
             state_table.insert({inst, Impl::create_state(vars)});
         }
 
-        state_table[program_start] = first_state;
+        for (const auto &point : program_points) {
+            state_table[point] = first_state;
+        }
     }
 
     template<typename State, typename LatticeValue, typename Impl>
@@ -99,9 +101,9 @@ namespace whilelang {
         const auto instructions = cfg->get_instructions();
         const Vars vars = cfg->get_vars();
 
-        std::deque<Node> worklist{cfg->get_program_entry()};
-        this->init_state_table(
-            instructions, vars, cfg->get_program_entry(), first_state);
+        const auto &entries = cfg->get_program_entries();
+        std::deque<Node> worklist{entries.begin(), entries.end()};
+        this->init_state_table(instructions, vars, entries, first_state);
 
         while (!worklist.empty()) {
             Node inst = worklist.front();
@@ -133,7 +135,7 @@ namespace whilelang {
 
         std::deque<Node> worklist{instructions.begin(), instructions.end()};
         this->init_state_table(
-            instructions, vars, cfg->get_program_exit(), first_state);
+            instructions, vars, cfg->get_program_exits(), first_state);
 
         while (!worklist.empty()) {
             Node inst = worklist.front();

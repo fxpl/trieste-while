@@ -5,7 +5,7 @@ namespace whilelang {
     using namespace trieste;
 
     PassDef gather_functions(std::shared_ptr<ControlFlow> cfg) {
-        auto fun_defs = std::make_shared<NodeSet>();
+        auto fun_defs = std::make_shared<Nodes>();
         auto fun_calls = std::make_shared<NodeSet>();
 
         PassDef gather_functions = {
@@ -14,7 +14,7 @@ namespace whilelang {
             dir::topdown | dir::once,
             {
                 T(FunDef)[FunDef] >> [=](Match &_) -> Node {
-                    fun_defs->insert(_(FunDef));
+                    fun_defs->push_back(_(FunDef));
                     return NoChange;
                 },
                 T(FunCall)[FunCall] >> [=](Match &_) -> Node {

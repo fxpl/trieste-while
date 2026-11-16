@@ -226,9 +226,7 @@ namespace whilelang {
                     incoming_state[var_dec] =
                         get_lattice_value_from_atom(arg, incoming_state);
                 }
-            } else if (
-                inst == FunDef &&
-                get_identifier(inst / FunId) != "main") {
+            } else if (inst == FunDef && !cfg->is_program_entry(inst)) {
                 auto params = inst / ParamList;
 
                 auto param_vars = Vars();

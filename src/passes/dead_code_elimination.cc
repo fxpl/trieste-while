@@ -30,24 +30,27 @@ namespace whilelang {
                 {
                     // Remove unused functions
                     T(FunDef)[FunDef] >> [=](Match &_) -> Node {
-                        auto fun_id = _(FunDef) / FunId;
-
-                        if (get_identifier(fun_id) != "main" &&
+                        if (!cfg->is_program_entry(_(FunDef)) &&
                             cfg->get_fun_calls_from_def(_(FunDef)).empty()) {
                             return {};
                         }
                         return NoChange;
                     },
 
-                    // Remove unused variables
+                    // Remove unused variables, unless computing their value
+                    // may have side effects (calls and input)
                     T(Stmt)
                             << (T(Assign)[Assign]
-                                << (T(Ident)[Ident] * T(AExpr, BExpr))) >>
+                                << (T(Ident)[Ident] * T(AExpr, BExpr)[Rhs])) >>
                         [=](Match &_) -> Node {
                         auto id = get_identifier(_(Ident));
                         auto assign = _(Assign);
+                        auto expr = _(Rhs) / Expr;
+                        bool effectful = expr == FunCall ||
+                            (expr == Atom && expr / Expr == Input);
 
-                        if (analysis->get_state(assign).contains(id)) {
+                        if (effectful ||
+                            analysis->get_state(assign).contains(id)) {
                             return NoChange;
                         } else {
                             return {};

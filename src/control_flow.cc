@@ -23,8 +23,8 @@ namespace whilelang {
         successor.clear();
         fun_call_to_def.clear();
         fun_def_to_calls.clear();
-        program_entry = {};
-        program_exit = {};
+        program_entries.clear();
+        program_exits.clear();
     }
 
     void ControlFlow::add_var(Node ident) {
@@ -47,7 +47,7 @@ namespace whilelang {
 
     // Fill the map with function calls to their definitions
     void ControlFlow::set_functions_calls(
-        std::shared_ptr<NodeSet> fun_defs, std::shared_ptr<NodeSet> fun_calls) {
+        std::shared_ptr<Nodes> fun_defs, std::shared_ptr<NodeSet> fun_calls) {
         for (auto fun_call : *fun_calls) {
             auto call_id_str = get_identifier(fun_call / FunId);
 
@@ -60,15 +60,20 @@ namespace whilelang {
             }
         }
 
-        for (auto fun_def : *fun_defs) {
-            if (get_identifier(fun_def / FunId) == "main") {
-                this->program_entry = fun_def;
-                this->program_exit = get_last_basic_child(fun_def / Body);
-                return;
-            }
+        // Compilation requires a main function, but programs without one can
+        // still be analysed by treating every function as an entry point
+        auto main = std::find_if(fun_defs->begin(), fun_defs->end(), [](auto &f) {
+            return get_identifier(f / FunId) == "main";
+        });
+        if (main != fun_defs->end()) {
+            program_entries = {*main};
+        } else {
+            program_entries = *fun_defs;
         }
-        throw std::runtime_error(
-            "No main function found. Please define a main function.");
+
+        for (auto entry : program_entries) {
+            program_exits.push_back(get_last_basic_child(entry / Body));
+        }
     }
 
     void ControlFlow::log_predecessors_and_successors() {

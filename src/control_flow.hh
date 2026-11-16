@@ -49,16 +49,22 @@ namespace whilelang {
             return fun_def_to_calls[fun_def];
         };
 
-        inline Node get_program_entry() {
-            return program_entry;
+        // The main function if there is one, otherwise every function
+        inline const Nodes &get_program_entries() {
+            return program_entries;
         };
 
-        inline Node get_program_exit() {
-            return program_exit;
+        inline const Nodes &get_program_exits() {
+            return program_exits;
+        };
+
+        inline bool is_program_entry(const Node &node) {
+            return std::find(program_entries.begin(), program_entries.end(), node) !=
+                program_entries.end();
         };
 
         void set_functions_calls(
-            std::shared_ptr<NodeSet> fun_defs,
+            std::shared_ptr<Nodes> fun_defs,
             std::shared_ptr<NodeSet> fun_calls);
 
         void add_var(Node ident);
@@ -73,8 +79,8 @@ namespace whilelang {
         void log_functions();
 
       private:
-        Node program_entry;
-        Node program_exit;
+        Nodes program_entries;
+        Nodes program_exits;
         Nodes instructions;
         Vars vars;
         bool dirty_flag;
