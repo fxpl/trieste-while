@@ -21,26 +21,12 @@ int main(int argc, char const *argv[]) {
 
     bool run = false;
     int opt_level = 0;
-    bool run_gather_stats = false;
-    bool run_mermaid = false;
-    app.add_flag("-r,--run", run, "Run the program (prompting inputs).");
     app.add_option(
            "-O,--opt-level",
            opt_level,
            "Optimisation level: 0 (none), 1 (static analysis), "
            "2 (static analysis and inlining).")
         ->check(CLI::Range(0, 2));
-
-    app.add_flag(
-        "-p, --print-stats",
-        run_gather_stats,
-        "Runs the gather stats pass displaying total instructions and "
-        "variables after normalization. Needed for the ./stats.sh script.");
-    app.add_flag(
-        "-m, --mermaid",
-        run_mermaid,
-        "Runs the mermaid pass which parses the final AST into mermaid "
-        "format ");
 
     std::filesystem::path output_path = "";
     app.add_option(
@@ -75,8 +61,7 @@ int main(int argc, char const *argv[]) {
     }
 
     auto vars_map = std::make_shared<std::map<std::string, std::string>>();
-    auto reader = whilelang::reader(vars_map, run_gather_stats, run_mermaid)
-                      .file(input_path);
+    auto reader = whilelang::reader(vars_map).file(input_path);
 
     try {
         auto program_empty = [](trieste::Node ast) -> bool {
@@ -130,6 +115,7 @@ int main(int argc, char const *argv[]) {
     } catch (const std::exception &e) {
         std::cerr << "Program failed with an exception: " << e.what()
                   << std::endl;
+        return 1;
     }
 
     return 0;

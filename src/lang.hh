@@ -4,10 +4,7 @@
 namespace whilelang {
     using namespace trieste;
 
-    Reader reader(
-        std::shared_ptr<std::map<std::string, std::string>> vars_map,
-        bool run_stats,
-        bool run_mermaid);
+    Reader reader(std::shared_ptr<std::map<std::string, std::string>> vars_map);
 
     Rewriter interpret();
     Rewriter optimization_analysis();
@@ -15,16 +12,20 @@ namespace whilelang {
     Rewriter compiler();
 
     // Program
-    inline const auto Program = TokenDef("while-program");
+    inline const auto Program = TokenDef("while-program", flag::symtab);
 
     // Function
-    inline const auto FunDef =
-        TokenDef("while-function_declaration", flag::symtab | flag::defbeforeuse);
-    inline const auto FunId = TokenDef("while-function_identifier", flag::print);
+    inline const auto FunDef = TokenDef(
+        "while-function_declaration",
+        flag::symtab | flag::defbeforeuse | flag::lookup);
+    inline const auto FunId =
+        TokenDef("while-function_identifier", flag::print);
     inline const auto ParamList = TokenDef("while-param_list");
-    inline const auto Param = TokenDef("while-param", flag::lookup | flag::shadowing);
+    inline const auto Param =
+        TokenDef("while-param", flag::lookup | flag::shadowing);
     inline const auto Body = TokenDef("while-body");
-    inline const auto Var = TokenDef("while-var", flag::lookup | flag::shadowing);
+    inline const auto Var =
+        TokenDef("while-var", flag::lookup | flag::shadowing);
     inline const auto Return = TokenDef("while-return");
 
     inline const auto FunCall = TokenDef("while-function_call");

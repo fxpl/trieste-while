@@ -10,6 +10,11 @@ namespace whilelang {
             normalization_wf,
             dir::topdown | dir::once,
             {
+                T(FunDef)[FunDef] >> [=](Match &_) -> Node {
+                    call_graph->add_fun_def(_(FunDef));
+                    return NoChange;
+                },
+
                 T(FunCall)[FunCall] >> [=](Match &_) -> Node {
                     auto caller = _(FunCall) / FunId;
                     auto surronding_fun = _(FunCall)->parent(FunDef) / FunId;
@@ -19,6 +24,11 @@ namespace whilelang {
                     return NoChange;
                 },
             }};
+
+        pass.pre([=](Node) {
+            call_graph->clear();
+            return 0;
+        });
 
         pass.post([=](Node) {
             call_graph->calculate_inlineable_funs();

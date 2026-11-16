@@ -90,13 +90,4 @@ namespace whilelang {
             return new_defs;
         };
     };
-
-    std::ostream &operator<<(std::ostream &os, const LiveState &state) {
-        os << "{ ";
-        for (const auto &var : state) {
-            os << var << " ";
-        }
-        os << "}";
-        return os;
-    }
 }

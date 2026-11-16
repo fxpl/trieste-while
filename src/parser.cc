@@ -177,6 +177,11 @@ namespace whilelang {
             pop_until(m, File, {Paren, If, Then, While});
         });
 
+        // Generate valid integer literals when fuzzing
+        p.gen({
+            {Int, [](Rand &rnd) { return std::to_string(rnd() % 100); }},
+        });
+
         return p;
     }
 }

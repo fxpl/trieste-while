@@ -13,6 +13,9 @@ FetchContent_Declare(
 set(TRIESTE_BUILD_SAMPLES OFF)
 set(TRIESTE_ENABLE_TESTING OFF)
 set(TRIESTE_BUILD_PARSER_TESTS OFF)
+# Overriding new/delete with snmalloc breaks exception handling on macOS: no
+# thrown exception can be caught
+set(TRIESTE_USE_SNMALLOC OFF)
 
 FetchContent_MakeAvailable(trieste)
 
@@ -46,18 +49,14 @@ src/utils.cc
 src/analyses/utils.cc
 src/control_flow.cc
 
-src/passes/generate_mermaid.cc
-
 src/passes/functions.cc
 src/passes/expressions.cc
 src/passes/statements.cc
 src/passes/check_refs.cc
 
 src/passes/unique_variables.cc
-src/passes/gather_stats.cc
 src/passes/normalization.cc
 src/passes/gather_control_flow.cc
-src/passes/zero_analysis.cc
 src/passes/constant_folding.cc
 src/passes/dead_code_elimination.cc
 
@@ -81,7 +80,6 @@ src/passes/expressions.cc
 src/passes/statements.cc
 src/passes/check_refs.cc
 src/passes/unique_variables.cc
-src/passes/gather_stats.cc
 src/passes/normalization.cc
 
 src/passes/to3addr.cc

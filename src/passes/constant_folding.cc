@@ -67,4 +67,21 @@ namespace whilelang {
 
         return constant_folding;
     }
+
+    // Runs constant propagation without rewriting anything, so that the
+    // analysis can be tested on its own
+    PassDef constant_propagation(std::shared_ptr<ControlFlow> cfg) {
+        auto analysis = std::make_shared<
+            DataFlowAnalysis<CPState, CPLatticeValue, CPImpl>>();
+
+        PassDef constant_propagation = {
+            "constant_propagation", normalization_wf, dir::once, {}};
+
+        constant_propagation.pre([=](Node) {
+            analysis->forward_worklist_algoritm(cfg, cp_first_state(cfg));
+            return 0;
+        });
+
+        return constant_propagation;
+    }
 }

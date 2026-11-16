@@ -11,6 +11,7 @@
 namespace whilelang {
     // Options for fuzz testing, mirroring those of Trieste's Driver
     struct TestOptions {
+        int opt_level = 0;
         uint32_t seed_count = 100;
         uint32_t seed = std::random_device()();
         std::string start_pass;

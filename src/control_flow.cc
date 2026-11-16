@@ -36,10 +36,6 @@ namespace whilelang {
         append_to_nodemap(predecessor, v, u);
     }
 
-    void ControlFlow::add_edge(const Node &u, const NodeSet &v) {
-        append_to_nodemap(successor, u, v);
-        append_to_nodemap(predecessor, v, u);
-    }
     void ControlFlow::add_edge(const NodeSet &u, const Node &v) {
         append_to_nodemap(successor, u, v);
         append_to_nodemap(predecessor, v, u);
@@ -76,58 +72,10 @@ namespace whilelang {
         }
     }
 
-    void ControlFlow::log_predecessors_and_successors() {
-        for (size_t i = 0; i < instructions.size(); i++) {
-            auto inst = instructions[i];
-            logging::Debug() << "Instruction: " << i + 1 << "\n" << inst;
-            logging::Debug() << "Predecessors: {" << std::endl;
-
-            auto pred = predecessor.find(inst);
-
-            if (pred == predecessor.end()) {
-                logging::Debug() << "No predecessors" << std::endl;
-            } else {
-                for (auto p : pred->second) {
-                    logging::Debug() << p << " " << std::endl;
-                }
-                logging::Debug() << "}" << std::endl;
-            }
-
-            logging::Debug() << "Sucessors: {" << std::endl;
-
-            auto succ = successor.find(inst);
-
-            if (succ == successor.end()) {
-                logging::Debug() << "No successors" << std::endl;
-            } else {
-                for (auto s : succ->second) {
-                    logging::Debug() << s << " " << std::endl;
-                }
-                logging::Debug() << "}" << std::endl;
-            }
-        }
-    }
-
     void ControlFlow::log_instructions() {
         logging::Debug() << "Instructions: ";
         for (size_t i = 0; i < instructions.size(); i++) {
             logging::Debug() << i + 1 << "\n" << instructions[i] << std::endl;
-        }
-    }
-    void ControlFlow::log_variables() {
-        logging::Debug() << "Variables: ";
-        for (auto var : vars) {
-            logging::Debug() << var << ",";
-        }
-    }
-
-    void ControlFlow::log_functions() {
-        logging::Debug() << "Functions: ";
-        for (auto [fun_def, calls] : fun_def_to_calls) {
-            logging::Debug() << fun_def;
-            for (auto call : calls) {
-                logging::Debug() << call << "\n";
-            }
         }
     }
 

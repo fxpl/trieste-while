@@ -24,7 +24,7 @@ namespace whilelang {
             if (parent == Var || parent == Param)
                 return parent;
 
-            auto defs = ident->lookup();
+            auto defs = lookup_variable(ident);
             return defs.empty() ? nullptr : defs.front();
         };
 

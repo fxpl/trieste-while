@@ -15,12 +15,6 @@ namespace whilelang {
     PassDef unique_variables(
         std::shared_ptr<std::map<std::string, std::string>> vars_map);
 
-    // For performance testing
-    PassDef gather_stats();
-
-    // Gathering AST in mermaid
-    PassDef generate_mermaid(const wf::Wellformed &wf);
-
     // Pre static analysis
     PassDef normalization();
     PassDef gather_functions(std::shared_ptr<ControlFlow> cfg);
@@ -28,16 +22,15 @@ namespace whilelang {
     PassDef gather_flow_graph(std::shared_ptr<ControlFlow> cfg);
 
     // Static analysis
-    PassDef z_analysis(std::shared_ptr<ControlFlow> cfg);
     PassDef constant_folding(std::shared_ptr<ControlFlow> cfg);
+    PassDef constant_propagation(std::shared_ptr<ControlFlow> cfg);
+    PassDef liveness(std::shared_ptr<ControlFlow> cfg);
     PassDef dead_code_elimination(std::shared_ptr<ControlFlow> cfg);
     PassDef dead_code_cleanup();
 
 	// Inlining
     PassDef build_call_graph(std::shared_ptr<CallGraph> call_graph);
-    PassDef inlining(
-        std::shared_ptr<CallGraph> call_graph,
-        std::shared_ptr<ControlFlow> cfg);
+    PassDef inlining(std::shared_ptr<CallGraph> call_graph);
 
 	// Compilation
 	PassDef to3addr();
@@ -96,7 +89,7 @@ namespace whilelang {
 		(parse_wf - File)
 		| (Top <<= Program)
 		| (Program <<= FunDef++[1])
-		| (FunDef <<= FunId * ParamList * Body)
+		| (FunDef <<= FunId * ParamList * Body)[FunId]
 		| (ParamList <<= Param++)
 		| (Param <<= Ident)[Ident]
 		| (Body <<= ~grouping_construct)
@@ -138,7 +131,7 @@ namespace whilelang {
 
     inline const wf::Wellformed statements_wf =
 		(expressions_wf - Group - Paren - Do - Then - Else - Body)
-		| (FunDef <<= FunId * ParamList * (Body >>= Block))
+		| (FunDef <<= FunId * ParamList * (Body >>= Block))[FunId]
 		| (Stmt <<= (Stmt >>= (Skip | Var | Assign | While | If | Output | Block | Return)))
 		| (Var <<= Ident)[Ident]
 		| (If <<= BExpr * (Then >>= Block) * (Else >>= Block))
@@ -187,14 +180,14 @@ namespace whilelang {
 
 	inline const wf::Wellformed gather_vars_wf =
 	    (three_addr_wf - Var)
-		| (FunDef <<= FunId * ParamList * Idents * (Body >>= Block))
+		| (FunDef <<= FunId * ParamList * Idents * (Body >>= Block))[FunId]
 		| (Idents <<= Ident++)
 		| (Stmt <<= (Stmt >>= (Skip | Assign | Cond | Jump | Label | Output | Return)))
 		;
 
 	inline const wf::Wellformed blockify_wf =
 	    gather_vars_wf
-		| (FunDef <<= FunId * ParamList * Idents * Blocks)
+		| (FunDef <<= FunId * ParamList * Idents * Blocks)[FunId]
 		| (Blocks <<= Block++[1])
 		| (Block <<= Label * Body * (Jump >>= Jump | Cond | Return))
 		| (Body <<= Stmt++)

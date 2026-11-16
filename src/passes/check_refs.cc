@@ -15,7 +15,7 @@ namespace whilelang {
             dir::bottomup | dir::once,
             {
                 T(Assign) << T(Ident)[Ident]([](auto &n) -> bool {
-                    auto defs = n.front()->lookup();
+                    auto defs = lookup_variable(n.front());
                     return defs.size() == 1 && defs.front() == Param;
                 }) >> [](Match &_) -> Node {
                     return Error << (ErrorAst << _(Ident))
@@ -23,7 +23,7 @@ namespace whilelang {
                 },
 
                 T(AExpr, Assign) << T(Ident)[Ident] >> [](Match &_) -> Node {
-                    auto def = _(Ident)->lookup();
+                    auto def = lookup_variable(_(Ident));
                     if (def.empty()) {
                         return Error << (ErrorAst << _(Ident))
                                      << (ErrorMsg ^ "Undefined variable");

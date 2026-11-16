@@ -7,6 +7,12 @@ namespace whilelang {
         return std::string(node->location().view());
     }
 
+    Nodes lookup_variable(const Node &ident) {
+        auto defs = ident->lookup();
+        std::erase_if(defs, [](auto &def) { return def == FunDef; });
+        return defs;
+    }
+
     std::string build_qualified_name(const Node ident) {
         auto curr = ident;
         while (curr != FunDef) {

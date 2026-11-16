@@ -1,6 +1,7 @@
 #pragma once
 #include "analyses/utils.hh"
 #include "lang.hh"
+#include "utils.hh"
 
 namespace whilelang {
     using namespace trieste;
@@ -42,7 +43,12 @@ namespace whilelang {
         };
 
         inline Node get_fun_def(Node fun_call) {
-            return fun_call_to_def[fun_call];
+            auto fun_def = fun_call_to_def.find(fun_call);
+            if (fun_def == fun_call_to_def.end())
+                throw InvalidInput("Call to unknown function");
+            if ((fun_call / ArgList)->size() != (fun_def->second / ParamList)->size())
+                throw InvalidInput("Wrong number of arguments");
+            return fun_def->second;
         };
 
         inline NodeSet get_fun_calls_from_def(Node fun_def) {
@@ -70,13 +76,9 @@ namespace whilelang {
         void add_var(Node ident);
 
         void add_edge(const Node &u, const Node &v);
-        void add_edge(const Node &u, const NodeSet &v);
         void add_edge(const NodeSet &u, const Node &v);
 
-        void log_predecessors_and_successors();
         void log_instructions();
-        void log_variables();
-        void log_functions();
 
       private:
         Nodes program_entries;

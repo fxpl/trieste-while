@@ -29,9 +29,7 @@ namespace whilelang {
         return builder;
     }
 
-    PassDef inlining(
-        std::shared_ptr<CallGraph> call_graph,
-        std::shared_ptr<ControlFlow> cfg) {
+    PassDef inlining(std::shared_ptr<CallGraph> call_graph) {
         PassDef pass = {
             "inlining",
             normalization_wf,
@@ -48,9 +46,13 @@ namespace whilelang {
                         return NoChange;
                     }
 
-                    cfg->set_dirty_flag(true);
-
-                    auto fun_def = cfg->get_fun_def(fun_call);
+                    // Leave calls to unknown functions, or with the wrong
+                    // number of arguments, alone. check_refs rejects them
+                    // when compiling, but they occur when testing inlining
+                    // in isolation
+                    auto fun_def = call_graph->get_fun_def(fun_call);
+                    if (!fun_def)
+                        return NoChange;
 
                     auto fresh_vars = std::map<Location, Location>();
                     auto arg_assignments =

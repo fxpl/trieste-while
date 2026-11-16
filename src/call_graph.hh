@@ -24,11 +24,35 @@ namespace whilelang {
         std::map<Vertex, Vertices> edges;
         std::vector<SCC> SCCs;
         Vertices non_inline_funs;
+        std::map<Vertex, Node> fun_defs;
 
         CallGraph() {
             this->vertices = Vertices();
             this->edges = std::map<Vertex, Vertices>();
             this->SCCs = std::vector<SCC>();
+        }
+
+        void clear() {
+            vertices.clear();
+            edges.clear();
+            SCCs.clear();
+            non_inline_funs.clear();
+            fun_defs.clear();
+        }
+
+        void add_fun_def(const Node &fun_def) {
+            fun_defs[get_identifier(fun_def / FunId)] = fun_def;
+        }
+
+        // The definition a call refers to, or nullptr if there is none with
+        // the right number of parameters. Looked up by name, since inlining
+        // copies calls
+        Node get_fun_def(const Node &fun_call) {
+            auto fun_def = fun_defs.find(get_identifier(fun_call / FunId));
+            if (fun_def == fun_defs.end() ||
+                (fun_call / ArgList)->size() != (fun_def->second / ParamList)->size())
+                return nullptr;
+            return fun_def->second;
         }
 
         void add_edge(const Node &surronding, const Node &fun_call) {
@@ -70,38 +94,6 @@ namespace whilelang {
         bool can_be_inlined(const Vertex &fun) {
             return !non_inline_funs.contains(fun);
         };
-
-        void log_functions_to_inline() {
-            std::stringstream str_builder;
-            str_builder << "The functions not allowed to be inlined are:\n";
-
-            for (auto &fun : this->non_inline_funs) {
-                str_builder << fun << ", ";
-            }
-
-            logging::Debug() << str_builder.str();
-        }
-
-        void log_graph() {
-            for (Vertex caller : this->vertices) {
-                logging::Debug() << "Function: " << caller
-                                 << " calls the following functions:";
-                for (Vertex callee : this->edges[caller]) {
-                    logging::Debug() << "\t" << callee;
-                }
-            }
-        }
-
-        void log_SCCs() {
-            std::stringstream str_builder;
-            for (auto &SCC : this->SCCs) {
-                str_builder << "\nThis SCC has nodes: \n";
-                for (auto &u : SCC.nodes) {
-                    str_builder << u << ", ";
-                }
-            }
-            logging::Debug() << str_builder.str();
-        }
 
       private:
         void add_edge(const Vertex &caller, const Vertex &callee) {

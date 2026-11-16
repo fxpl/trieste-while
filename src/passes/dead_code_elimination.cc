@@ -63,8 +63,9 @@ namespace whilelang {
                         return {};
                     },
 
-                    // Ensure if and while statements have non-empty bodies
-                    In(If, While) * (T(Block)[Block] << End) >>
+                    // Ensure functions, if and while statements have
+                    // non-empty bodies
+                    In(FunDef, If, While) * (T(Block)[Block] << End) >>
                         [](Match &_) -> Node {
                         return _(Block) << (Stmt << Skip);
                     },
@@ -98,17 +99,17 @@ namespace whilelang {
                     // Try to determine branching of if statements
                     T(Stmt)
                             << (T(If)
-                                << (T(BAtom)[BAtom] * T(Stmt)[Then] *
-                                    T(Stmt)[Else])) >>
+                                << (T(BAtom)[BAtom] * T(Block)[Then] *
+                                    T(Block)[Else])) >>
                         [=](Match &_) -> Node {
                         auto batom = _(BAtom);
                         auto bexpr_value = get_batom_value(batom);
 
                         if (bexpr_value.has_value()) {
                             if (*bexpr_value) {
-                                return Reapply << _(Then);
+                                return Stmt << _(Then);
                             } else {
-                                return Reapply << _(Else);
+                                return Stmt << _(Else);
                             }
                         } else {
                             return NoChange;
@@ -116,7 +117,12 @@ namespace whilelang {
                     },
 
                     // Try to determine branching of while statements
-                    T(Stmt) << (T(While) << (T(Stmt) * T(BAtom)[BAtom])) >>
+                    // A loop whose condition is false runs only the block
+                    // that computes the condition, once
+                    T(Stmt)
+                            << (T(While)
+                                << (T(Block)[Cond] * T(BAtom)[BAtom] *
+                                    T(Block))) >>
                         [=](Match &_) -> Node {
                         auto batom = _(BAtom);
                         auto bexpr_value = get_batom_value(batom);
@@ -125,7 +131,7 @@ namespace whilelang {
                             if (*bexpr_value) {
                                 return NoChange;
                             } else {
-                                return {};
+                                return Stmt << _(Cond);
                             }
                         } else {
                             return NoChange;
@@ -139,13 +145,26 @@ namespace whilelang {
 
             analysis->backward_worklist_algoritm(cfg, first_state);
 
-            // cfg->log_instructions();
-            // analysis->log_state_table(cfg);
-
             return 0;
         });
 
         return dead_code_elimination;
+    }
+
+    // Runs liveness analysis without rewriting anything, so that the analysis
+    // can be tested on its own
+    PassDef liveness(std::shared_ptr<ControlFlow> cfg) {
+        auto analysis = std::make_shared<
+            DataFlowAnalysis<LiveState, std::string, LiveImpl>>();
+
+        PassDef liveness = {"liveness", normalization_wf, dir::once, {}};
+
+        liveness.pre([=](Node) {
+            analysis->backward_worklist_algoritm(cfg, LiveState());
+            return 0;
+        });
+
+        return liveness;
     }
 
     PassDef dead_code_cleanup() {
